@@ -1,0 +1,94 @@
+# X Master
+
+A Next.js PWA for generating X-native posts. Save tweets to a local vector database, then generate new posts that match your personal writing style.
+
+## Features
+
+- **TikTok → X** — paste a TikTok URL or transcript and generate a post from the core idea
+- **Generate** — write from any topic, guided by your saved style examples
+- **Database** — browse, search, and manage your saved tweet library
+- **Chrome extension** — right-click any tweet on X to save it directly to your database
+
+## Stack
+
+- **Next.js 14** (App Router) + TypeScript
+- **ChromaDB** — local vector database for style references
+- **OpenRouter** — AI generation (default: `google/gemini-2.5-flash-lite`)
+- **Tailwind CSS**
+- **Chrome Extension** (Manifest V3)
+
+## Setup
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure environment
+
+Create `.env.local`:
+
+```env
+OPENROUTER_API_KEY=your_key_here
+OPENROUTER_MODEL=google/gemini-2.5-flash-lite
+
+# Optional — defaults shown
+CHROMA_HOST=localhost
+CHROMA_PORT=8000
+```
+
+### 3. Start ChromaDB
+
+ChromaDB must be running before you start the app. The path below is configurable — update `package.json` to match your install:
+
+```bash
+npm run chroma:run
+```
+
+### 4. Start the app
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+## Chrome Extension
+
+1. Open `chrome://extensions` in Chrome
+2. Enable **Developer mode**
+3. Click **Load unpacked** and select the `chrome-extension/` folder
+4. Click the extension icon to confirm the App URL (default: `http://localhost:3000`)
+5. Right-click any tweet on X → **"Add tweet to database"**
+
+## Project Structure
+
+```
+app/
+  api/
+    chroma/health/     — ChromaDB health check
+    extract-captions/  — TikTok caption extraction via yt-dlp
+    generate/          — AI content generation
+    generate/feedback/ — Save liked/disliked generations to library
+    tweets/            — CRUD for tweet style library
+  database/            — Browse and manage saved examples
+  generate/            — Generate from a topic
+  tiktok/              — Convert TikTok → X post
+chrome-extension/      — Chrome MV3 extension
+components/            — Shared UI components
+lib/
+  chroma.ts            — ChromaDB client
+  content-options.ts   — Length and tone configuration
+  generation.ts        — AI generation pipeline
+  tweets.ts            — Tweet record types and helpers
+public/                — PWA icons and manifest
+scripts/               — Dev server helpers
+```
+
+## Requirements
+
+- Node.js 18+
+- [ChromaDB](https://docs.trychroma.com) running locally
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) on PATH (for TikTok caption extraction)
+- An [OpenRouter](https://openrouter.ai) API key

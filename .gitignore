@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# production
+build/
+
+# env
+.env*.local
+.env
+
+# logs
+*.log
+dev-*.log
+dev-*.err.log
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# local tooling
+.playwright-mcp/
+.expo/
+.public-runtime/
+tools/cloudflared.exe

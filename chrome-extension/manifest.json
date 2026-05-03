@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "X Master — Save Tweet",
+  "version": "1.0.0",
+  "description": "Right-click any tweet to save it to your X Master App database.",
+  "permissions": ["contextMenus", "notifications", "storage", "scripting"],
+  "host_permissions": [
+    "https://twitter.com/*",
+    "https://x.com/*",
+    "http://localhost:3000/*",
+    "http://localhost:3001/*",
+    "http://localhost:3002/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://twitter.com/*", "https://x.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "X Master App"
+  }
+}

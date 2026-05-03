@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="110" fill="#0a0a0a"/>
+  <rect width="512" height="512" rx="110" fill="url(#bg-grad)" opacity="0.9"/>
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+  </defs>
+  <!-- Zap / Lightning bolt -->
+  <path d="M288 85L181 277h96l-53 150 170-213h-107z" fill="white" opacity="0.95"/>
+</svg>

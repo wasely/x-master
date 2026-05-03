@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "x-master",
+    "slug": "x-master",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "xmaster",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.local.xmaster"
+    },
+    "android": {
+      "package": "com.local.xmaster"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}

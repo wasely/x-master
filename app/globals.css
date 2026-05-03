@@ -1,0 +1,225 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-jakarta: var(--font-space), system-ui, sans-serif;
+  --font-playfair: "Playfair Display", Georgia, serif;
+  --app-bg: #080808;
+  --app-panel: rgba(255, 255, 255, 0.035);
+  --app-panel-strong: rgba(255, 255, 255, 0.06);
+  --app-border: rgba(255, 255, 255, 0.08);
+  --app-muted: #71717a;
+  --app-text: #f4f4f5;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+html, body {
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.1), transparent 32%),
+    linear-gradient(180deg, #0d0d0d 0%, #080808 30%, #050505 100%);
+  color: var(--app-text);
+  font-family: var(--font-space), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+}
+
+body {
+  position: relative;
+}
+
+body::before,
+body::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+}
+
+body::before {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.08), transparent 30%),
+    radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.04), transparent 26%);
+}
+
+body::after {
+  opacity: 0.16;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.4), black 22%, black 75%, transparent);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+a,
+button,
+input,
+textarea,
+select {
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    color 140ms ease,
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+}
+
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; -ms-overflow-style: none; }
+
+.font-serif {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+.font-sans {
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+}
+
+/* iOS momentum scroll */
+.scroll-view {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app-frame {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 12%),
+    var(--app-bg);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 30px 100px rgba(0, 0, 0, 0.55);
+}
+
+.page-header {
+  margin-bottom: 1.75rem;
+}
+
+.surface-card {
+  border: 1px solid var(--app-border);
+  border-radius: 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.02);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+}
+
+.field-shell {
+  border: 1px solid var(--app-border);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.015);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.125rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+}
+
+.status-pill-online {
+  border-color: rgba(52, 211, 153, 0.18);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.status-pill-warn {
+  border-color: rgba(251, 191, 36, 0.18);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #71717a;
+}
+
+.primary-button {
+  display: inline-flex;
+  min-height: 3rem;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 1rem;
+  background: white;
+  color: black;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.ghost-button:disabled {
+  opacity: 0.5;
+}
+
+.secondary-button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--app-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e4e4e7;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ghost-button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: #d4d4d8;
+  font-size: 12px;
+  font-weight: 500;
+  padding-inline: 0.9rem;
+}
+
+.ghost-button:hover,
+.secondary-button:hover,
+.field-shell:focus-within {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.primary-button:hover {
+  transform: translateY(-1px);
+}
+
+.ghost-button:active,
+.secondary-button:active {
+  transform: translateY(1px);
+}
