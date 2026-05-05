@@ -13,6 +13,7 @@ type HealthResponse = {
 type SystemStatusProps = {
   compact?: boolean;
   showCounts?: boolean;
+  refreshTrigger?: number;
 };
 
 function formatCount(value?: number) {
@@ -22,6 +23,7 @@ function formatCount(value?: number) {
 export default function SystemStatus({
   compact = false,
   showCounts = false,
+  refreshTrigger,
 }: SystemStatusProps) {
   const [status, setStatus] = useState<HealthResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,13 +61,13 @@ export default function SystemStatus({
     void loadStatus();
     const interval = window.setInterval(() => {
       void loadStatus();
-    }, 45000);
+    }, 8000);
 
     return () => {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, []);
+  }, [refreshTrigger]);
 
   if (compact) {
     return (

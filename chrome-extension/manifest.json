@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "X Master — Save Tweet",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Right-click any tweet to save it to your X Master App database.",
   "permissions": ["contextMenus", "notifications", "storage", "scripting"],
   "host_permissions": [
@@ -9,7 +9,8 @@
     "https://x.com/*",
     "http://localhost:3000/*",
     "http://localhost:3001/*",
-    "http://localhost:3002/*"
+    "http://localhost:3002/*",
+    "http://localhost:3003/*"
   ],
   "background": {
     "service_worker": "background.js"

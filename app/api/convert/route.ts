@@ -30,11 +30,11 @@ export async function POST(request: Request) {
       source: text,
       mode: "tiktok",
       toneId: getToneOption(body.tone).id,
-      lengthId: "long",
+      lengthId: "regular_post",
       useLibrary: typeof body.useLibrary === "boolean" ? body.useLibrary : true,
     });
 
-    return NextResponse.json({ tweet: result.content, content: result.content });
+    return NextResponse.json({ content: result.content });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Could not generate tweet." },

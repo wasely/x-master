@@ -3,6 +3,7 @@ node_modules/
 
 # Next.js
 .next/
+.next-dev-*/
 out/
 
 # production
@@ -24,5 +25,13 @@ next-env.d.ts
 # local tooling
 .playwright-mcp/
 .expo/
+.expo-start/
 .public-runtime/
+.runtime/
 tools/cloudflared.exe
+
+# design reference screenshots (not part of the app)
+/*.png
+
+# SKILLS is a standalone design system project
+SKILLS/

@@ -1,12 +1,14 @@
-import { execFileSync } from "child_process";
+import { execFile } from "child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, unlinkSync } from "fs";
 import os from "os";
 import path from "path";
+import { promisify } from "util";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
 const ERROR_RESPONSE = { error: "Could not extract captions from this video" };
+const execFileAsync = promisify(execFile);
 
 function cleanSubtitleText(subtitle: string) {
   const cleanedLines = subtitle
@@ -42,36 +44,40 @@ function cleanSubtitleText(subtitle: string) {
 function findSubtitleFile(tempFolder: string) {
   return readdirSync(tempFolder)
     .filter((fileName) => /\.(vtt|srt)$/i.test(fileName))
+    .sort((left, right) => {
+      const leftScore = /\.en[\.-]/i.test(left) ? 0 : 1;
+      const rightScore = /\.en[\.-]/i.test(right) ? 0 : 1;
+
+      return leftScore - rightScore;
+    })
     .map((fileName) => path.join(tempFolder, fileName))
     .at(0);
 }
 
-function buildCommandArgs({
-  url,
-  outputPath,
-  subtitleFlag,
-  subtitleLanguage,
-}: {
-  url: string;
-  outputPath: string;
-  subtitleFlag: "--write-auto-sub" | "--write-sub";
-  subtitleLanguage: string;
-}) {
+function buildCommandArgs({ url, outputPath }: { url: string; outputPath: string }) {
   return [
-    subtitleFlag,
+    "--write-auto-sub",
+    "--write-sub",
     "--skip-download",
-    "--sub-lang",
-    subtitleLanguage,
+    "--sub-langs",
+    "en.*,eng.*,en-US,eng-US,en",
+    "--no-playlist",
+    "--no-warnings",
+    "--retries",
+    "0",
+    "--extractor-retries",
+    "0",
+    "--socket-timeout",
+    "8",
     "--output",
     outputPath,
     url,
   ];
 }
 
-function runYtDlp(args: string[]) {
-  execFileSync("yt-dlp", args, {
-    stdio: "pipe",
-    timeout: 45000,
+async function runYtDlp(args: string[]) {
+  await execFileAsync("yt-dlp", args, {
+    timeout: 20000,
     windowsHide: true,
   });
 }
@@ -89,28 +95,15 @@ export async function POST(request: Request) {
 
     tempFolder = mkdtempSync(path.join(os.tmpdir(), "x-master-captions-"));
     const outputPath = path.join(tempFolder, "captions");
-    const commandArgs = buildCommandArgs({
-      url,
-      outputPath,
-      subtitleFlag: "--write-auto-sub",
-      subtitleLanguage: "en",
-    });
+    const commandArgs = buildCommandArgs({ url, outputPath });
 
-    runYtDlp(commandArgs);
-
-    let subtitleFile = findSubtitleFile(tempFolder);
-    if (!subtitleFile) {
-      const fallbackCommandArgs = buildCommandArgs({
-        url,
-        outputPath,
-        subtitleFlag: "--write-sub",
-        subtitleLanguage: "eng-US",
-      });
-
-      runYtDlp(fallbackCommandArgs);
-      subtitleFile = findSubtitleFile(tempFolder);
+    try {
+      await runYtDlp(commandArgs);
+    } catch {
+      // Some TikToks still yield usable subtitle files even when yt-dlp exits non-zero.
     }
 
+    const subtitleFile = findSubtitleFile(tempFolder);
     if (!subtitleFile) {
       return NextResponse.json(ERROR_RESPONSE, { status: 400 });
     }
@@ -124,7 +117,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ captions });
-  } catch (error) {
+  } catch {
     return NextResponse.json(ERROR_RESPONSE, { status: 400 });
   } finally {
     if (tempFolder && existsSync(tempFolder)) {

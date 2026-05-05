@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Database, Sparkles, Video } from "lucide-react";
+import { Database, PenLine, Sparkles, Video } from "lucide-react";
 
 const tabs = [
   { href: "/tiktok", label: "TikTok", Icon: Video },
   { href: "/database", label: "Database", Icon: Database },
+  { href: "/drafts", label: "Drafts", Icon: PenLine },
   { href: "/generate", label: "Generate", Icon: Sparkles },
 ];
 
@@ -15,7 +16,7 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-1/2 z-50 w-full max-w-[430px] -translate-x-1/2 px-3 pb-[calc(0.85rem+env(safe-area-inset-bottom))]">
-      <div className="surface-card grid grid-cols-3 px-2 py-2">
+      <div className="surface-card grid grid-cols-4 px-2 py-2">
         {tabs.map(({ href, label, Icon }) => {
           const active = pathname === href || (href === "/tiktok" && pathname === "/");
 

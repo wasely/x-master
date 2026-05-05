@@ -8,17 +8,33 @@ import {
 } from "@/lib/chroma";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
-export async function GET() {
+async function getLiveCollectionCount(
+  collection: Awaited<ReturnType<typeof getTweetExamplesCollection>>,
+) {
+  const snapshot = await collection.get({
+    include: ["documents"],
+  });
+
+  return snapshot.ids.length;
+}
+
+export async function GET(request: Request) {
+  void request.url;
   const settings = getChromaSettings();
 
   try {
     const client = getChromaClient();
     const heartbeat = await client.heartbeat();
     const collection = await getTweetExamplesCollection();
-    const count = await collection.count();
     const rejectionCollection = await getTweetRejectionsCollection();
-    const rejectionCount = await rejectionCollection.count();
+    const [count, rejectionCount] = await Promise.all([
+      getLiveCollectionCount(collection),
+      getLiveCollectionCount(rejectionCollection),
+    ]);
 
     return NextResponse.json({
       ok: true,

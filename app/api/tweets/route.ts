@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import { NextResponse } from "next/server";
-import { getChromaSettings, getChromaStartCommand, getTweetExamplesCollection } from "@/lib/chroma";
-import { LengthId, ToneId, wordCount } from "@/lib/content-options";
+import { getChromaSettings, getChromaStartCommand, getTweetExamplesCollection, getTweetRejectionsCollection } from "@/lib/chroma";
+import { LengthId, ToneId, getLengthOption, getToneOption, wordCount } from "@/lib/content-options";
 import {
   TweetMetadata,
   buildTweetMetadata,
@@ -10,6 +10,17 @@ import {
 } from "@/lib/tweets";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+} as const;
+
+export function OPTIONS() {
+  return new Response(null, { status: 204, headers: CORS_HEADERS });
+}
 
 type InferredMetadata = {
   tags: string[];
@@ -25,15 +36,19 @@ function parseLimit(value: string | null, fallback = 25) {
   return Math.max(1, Math.min(Math.trunc(parsed), 50));
 }
 
+function json(data: unknown, status = 200) {
+  return NextResponse.json(data, { status, headers: CORS_HEADERS });
+}
+
 function jsonError(message: string, status: number, details?: unknown) {
-  return NextResponse.json(
+  return json(
     {
       error: message,
       details: details instanceof Error ? details.message : details,
       startCommand: getChromaStartCommand(),
       settings: getChromaSettings(),
     },
-    { status },
+    status,
   );
 }
 
@@ -138,31 +153,43 @@ function uniqueCleanTags(tags: string[]) {
 function inferLength(text: string): LengthId {
   const count = wordCount(text);
   const numberedSections = text.match(/(?:^|\n)\s*\d+\//g)?.length ?? 0;
+  const outlineStyleSections = text.match(/(?:^|\n)\s*(?:[ivx]+\.)/gim)?.length ?? 0;
 
-  if (numberedSections >= 3) return "thread";
-  if (count <= 15) return "short";
-  if (count <= 30) return "medium";
-  if (count <= 75) return "long";
-  if (count <= 300) return "thread";
-  if (count <= 1000) return "article";
-  return "manifesto";
+  if (numberedSections >= 3 || outlineStyleSections >= 3) return "thread";
+  if (count <= 12) return "one_liner";
+  if (count <= 30) return "short_post";
+  if (count <= 90) return "regular_post";
+  if (count <= 320) return "thread";
+  return "article";
 }
 
 function inferTone(text: string): ToneId {
   const clean = text.toLowerCase();
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  const lowerCaseRatio = words.length
+    ? words.filter((word) => word === word.toLowerCase()).length / words.length
+    : 0;
 
   if (/\b(lol|lmao|haha|hilarious|funny|absurd|ridiculous)\b/.test(clean)) return "funny";
-  if (/\b(unpopular opinion|hot take|most people are wrong|everyone gets this wrong|contrarian)\b/.test(clean)) {
-    return "contrarian";
+  if (
+    lowerCaseRatio > 0.9 &&
+    /\b(yo|nah|bro|crazy|gonna|gotta|wanna|kinda|idk|btw|tbh|u)\b/.test(clean)
+  ) {
+    return "just_typing";
   }
-  if (/\b(how to|guide|framework|lesson|mistake|step|playbook|principle|here'?s why)\b/.test(clean)) {
-    return "educational";
+  if (
+    /\b(chill|calm|gentle|slow|easy|soft|quiet|breathe|steady|peaceful|cozy)\b/.test(clean)
+  ) {
+    return "relax";
   }
-  if (/\b(keep going|you can|discipline|mindset|believe|dream|motivation|win)\b/.test(clean)) {
-    return "motivational";
+  if (
+    /\b(i think|i feel|maybe|probably|usually|sometimes|reminder|understand|notice)\b/.test(clean) ||
+    /\b(how to|guide|walkthrough|playbook|framework|step|lesson|explained|breakdown|here'?s why|let'?s go through)\b/.test(clean)
+  ) {
+    return "calm";
   }
-  if (/\b(risk|cost|problem|crisis|warning|serious|truth|reality)\b/.test(clean)) return "serious";
-  return "impactful";
+
+  return "persuasive";
 }
 
 function inferCategoryAndTags(text: string, notes: string) {
@@ -211,9 +238,12 @@ export async function GET(request: Request) {
   const query = searchParams.get("query")?.trim() ?? "";
   const filter = searchParams.get("filter")?.trim() ?? searchParams.get("tag")?.trim() ?? "";
   const limit = parseLimit(searchParams.get("limit"));
+  const useRejections = searchParams.get("collection") === "rejections";
 
   try {
-    const collection = await getTweetExamplesCollection();
+    const collection = useRejections
+      ? await getTweetRejectionsCollection()
+      : await getTweetExamplesCollection();
 
     if (query) {
       const results = await collection.query<TweetMetadata>({
@@ -236,7 +266,7 @@ export async function GET(request: Request) {
         examples = examples.filter((example) => matchesTweetFilter(example, filter));
       }
 
-      return NextResponse.json({ examples, query, filter });
+      return json({ examples, query, filter });
     }
 
     const results = await collection.get<TweetMetadata>({
@@ -254,7 +284,7 @@ export async function GET(request: Request) {
       examples = examples.filter((example) => matchesTweetFilter(example, filter));
     }
 
-    return NextResponse.json({ examples, query: "", filter });
+    return json({ examples, query: "", filter });
   } catch (error) {
     return jsonError("Could not read tweet examples from Chroma.", 503, error);
   }
@@ -286,7 +316,9 @@ export async function POST(request: Request) {
 
   const url = firstUrl(input);
   const tweetId = url ? extractTweetId(url) : undefined;
-  let tweetText = body.tweetText?.trim() || "";
+  const rawTweetText = body.tweetText?.trim() || "";
+  // If the scraped text is just a bare URL (e.g. a t.co link), discard it and let oEmbed fetch the real text
+  let tweetText = /^https?:\/\/\S+$/.test(rawTweetText) ? "" : rawTweetText;
   let authorName: string | undefined;
   let sourceUrl = url;
 
@@ -311,9 +343,15 @@ export async function POST(request: Request) {
   const createdAt = new Date().toISOString();
   const inferred = fallbackMetadata(tweetText, notes ?? "");
   const tags = parseTags(body.tags);
-  const tone = typeof body.tone === "string" && body.tone.trim() ? body.tone.trim() : inferred.tone;
+  const tone =
+    typeof body.tone === "string" && body.tone.trim()
+      ? getToneOption(body.tone).id
+      : inferred.tone;
   const category = typeof body.category === "string" && body.category.trim() ? body.category.trim() : inferred.category;
-  const length = typeof body.length === "string" && body.length.trim() ? body.length.trim() : inferred.length;
+  const length =
+    typeof body.length === "string" && body.length.trim()
+      ? getLengthOption(body.length).id
+      : inferred.length;
   const id = tweetId ? `x-${tweetId}` : `manual-${hashId(`${sourceUrl ?? ""}:${tweetText}`)}`;
   const metadata = buildTweetMetadata({
     sourceType: sourceUrl ? "tweet_url" : "manual",
@@ -337,9 +375,7 @@ export async function POST(request: Request) {
       uris: sourceUrl ? [sourceUrl] : undefined,
     });
 
-    return NextResponse.json({
-      example: toTweetRecord(id, tweetText, metadata),
-    });
+    return json({ example: toTweetRecord(id, tweetText, metadata) });
   } catch (error) {
     return jsonError("Could not save tweet example to Chroma.", 503, error);
   }
@@ -348,16 +384,19 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
+  const useRejections = searchParams.get("collection") === "rejections";
 
   if (!id) {
     return jsonError("Missing tweet example id.", 400);
   }
 
   try {
-    const collection = await getTweetExamplesCollection();
+    const collection = useRejections
+      ? await getTweetRejectionsCollection()
+      : await getTweetExamplesCollection();
     await collection.delete({ ids: [id] });
-    return NextResponse.json({ ok: true });
+    return json({ ok: true });
   } catch (error) {
-    return jsonError("Could not delete tweet example from Chroma.", 503, error);
+    return jsonError("Could not delete from Chroma.", 503, error);
   }
 }

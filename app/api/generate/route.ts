@@ -36,7 +36,9 @@ export async function POST(request: Request) {
     const useLibrary = typeof body.useLibrary === "boolean" ? body.useLibrary : true;
     const count = Number.isFinite(Number(body.count))
       ? Math.max(1, Math.min(Math.trunc(Number(body.count)), 5))
-      : 3;
+      : mode === "tiktok"
+        ? 5
+        : 3;
 
     const result = await generateContentBatch({
       source,
@@ -48,7 +50,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       content: result.generations[0]?.content ?? "",
-      tweet: result.generations[0]?.content ?? "",
       generations: result.generations,
       referencesUsed: result.referencesUsed,
       avoidReferencesUsed: result.avoidReferencesUsed,

@@ -87,10 +87,16 @@
   <label for="appUrl">App URL</label>
   <input id="appUrl" type="url" placeholder="http://localhost:3000" spellcheck="false" />
 
-  <button id="save">Save settings</button>
+  <div style="display:flex;gap:8px;margin-top:12px">
+    <button id="save" style="flex:1;margin-top:0">Save</button>
+    <button id="detect" style="flex:1;margin-top:0;background:#18181b;color:#e4e4e7;border:1px solid rgba(255,255,255,0.1)">Auto-detect</button>
+  </div>
   <p id="status"></p>
 
-  <p class="hint">Right-click any tweet on X and choose <strong style="color:#a1a1aa">"Add tweet to database"</strong>.</p>
+  <p class="hint">Right-click any tweet on X and choose<br>
+    <strong style="color:#a1a1aa">"Add tweet to style library"</strong> or<br>
+    <strong style="color:#a1a1aa">"Save as my draft"</strong>.
+  </p>
 
   <script src="popup.js"></script>
 </body>

@@ -7,6 +7,7 @@ import {
   Clipboard,
   ClipboardPaste,
   Loader2,
+  PenLine,
   RotateCcw,
   Sparkles,
   Square,
@@ -22,6 +23,8 @@ import {
   LengthId,
   TONE_OPTIONS,
   ToneId,
+  getLengthOption,
+  getToneOption,
   wordCount,
 } from "@/lib/content-options";
 
@@ -47,11 +50,12 @@ type StoredComposerState = {
   generations?: GeneratedVariant[];
   activeVariantId?: string;
   referencesUsed?: number;
+  avoidReferencesUsed?: number;
 };
 
 type FeedbackAction = "like" | "dislike";
 
-const VARIANT_COUNT = 3;
+const VARIANT_COUNT = 5;
 
 function isUrl(value: string) {
   return /^https?:\/\//i.test(value.trim());
@@ -122,36 +126,28 @@ function CopyButton({ text }: { text: string }) {
 
 export default function GenerationComposer({ mode }: { mode: ContentMode }) {
   const [input, setInput] = useState("");
-  const [lengthId, setLengthId] = useState<LengthId>("long");
-  const [toneId, setToneId] = useState<ToneId>("impactful");
+  const [lengthId, setLengthId] = useState<LengthId>("regular_post");
+  const [toneId, setToneId] = useState<ToneId>("persuasive");
   const [variants, setVariants] = useState<GeneratedVariant[]>([]);
   const [activeVariantId, setActiveVariantId] = useState("");
   const [referencesUsed, setReferencesUsed] = useState(0);
+  const [avoidReferencesUsed, setAvoidReferencesUsed] = useState(0);
+  const [draftSavedId, setDraftSavedId] = useState("");
+  const [draftSaving, setDraftSaving] = useState(false);
   const [feedbackByVariantId, setFeedbackByVariantId] = useState<Record<string, FeedbackAction>>({});
   const [feedbackBusyId, setFeedbackBusyId] = useState("");
   const [error, setError] = useState("");
   const [loadingState, setLoadingState] = useState<LoadingState>("idle");
   const abortControllerRef = useRef<AbortController | null>(null);
+  const extractedSourceCacheRef = useRef(new Map<string, string>());
 
   const storageKey = useMemo(() => storageKeyForMode(mode), [mode]);
   const loading = loadingState !== "idle";
-  const selectedLength = useMemo(
-    () => LENGTH_OPTIONS.find((option) => option.id === lengthId) ?? LENGTH_OPTIONS[2],
-    [lengthId],
-  );
-  const selectedTone = useMemo(
-    () => TONE_OPTIONS.find((option) => option.id === toneId) ?? TONE_OPTIONS[2],
-    [toneId],
-  );
   const activeVariant = useMemo(
     () => variants.find((variant) => variant.id === activeVariantId) ?? variants[0] ?? null,
     [activeVariantId, variants],
   );
   const title = mode === "tiktok" ? "TikTok to X" : "Generate";
-  const description =
-    mode === "tiktok"
-      ? "Turn a TikTok link or transcript into a tighter X-native post without losing the core idea."
-      : "Write directly from an idea and let the saved voice library keep the output aligned with your taste.";
   const placeholder =
     mode === "tiktok"
       ? "Paste a TikTok URL or transcript"
@@ -161,7 +157,7 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
     loadingState === "extracting"
       ? "Reading TikTok"
       : loadingState === "generating"
-        ? "Generating options"
+        ? `Generating ${VARIANT_COUNT} posts`
         : mode === "tiktok"
           ? "Generate from TikTok"
           : "Generate";
@@ -173,8 +169,8 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
 
       const stored = JSON.parse(raw) as StoredComposerState;
       if (typeof stored.input === "string") setInput(stored.input);
-      if (stored.lengthId) setLengthId(stored.lengthId);
-      if (stored.toneId) setToneId(stored.toneId);
+      if (stored.lengthId) setLengthId(getLengthOption(stored.lengthId).id);
+      if (stored.toneId) setToneId(getToneOption(stored.toneId).id);
       if (Array.isArray(stored.generations)) {
         const cleanGenerations = stored.generations.filter(
           (generation): generation is GeneratedVariant =>
@@ -185,6 +181,9 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
       }
       if (typeof stored.referencesUsed === "number") {
         setReferencesUsed(stored.referencesUsed);
+      }
+      if (typeof stored.avoidReferencesUsed === "number") {
+        setAvoidReferencesUsed(stored.avoidReferencesUsed);
       }
     } catch {
       window.localStorage.removeItem(storageKey);
@@ -199,10 +198,11 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
       generations: variants,
       activeVariantId,
       referencesUsed,
+      avoidReferencesUsed,
     };
 
     window.localStorage.setItem(storageKey, JSON.stringify(payload));
-  }, [activeVariantId, input, lengthId, referencesUsed, storageKey, toneId, variants]);
+  }, [activeVariantId, avoidReferencesUsed, input, lengthId, referencesUsed, storageKey, toneId, variants]);
 
   useEffect(() => {
     return () => {
@@ -224,25 +224,33 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
     setError("");
 
     try {
+      setDraftSavedId("");
       let sourceForGeneration = source;
 
       if (mode === "tiktok" && isUrl(source)) {
-        setLoadingState("extracting");
-        const captionsResponse = await fetch("/api/extract-captions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: source }),
-          signal: controller.signal,
-        });
-        const captionsData = (await captionsResponse.json().catch(() => null)) as
-          | { captions?: string; error?: string }
-          | null;
+        const cachedCaptions = extractedSourceCacheRef.current.get(source);
 
-        if (!captionsResponse.ok || !captionsData?.captions) {
-          throw new Error(captionsData?.error ?? "Could not read this TikTok. Paste the transcript instead.");
+        if (cachedCaptions) {
+          sourceForGeneration = cachedCaptions;
+        } else {
+          setLoadingState("extracting");
+          const captionsResponse = await fetch("/api/extract-captions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: source }),
+            signal: controller.signal,
+          });
+          const captionsData = (await captionsResponse.json().catch(() => null)) as
+            | { captions?: string; error?: string }
+            | null;
+
+          if (!captionsResponse.ok || !captionsData?.captions) {
+            throw new Error(captionsData?.error ?? "Could not read this TikTok. Paste the transcript instead.");
+          }
+
+          extractedSourceCacheRef.current.set(source, captionsData.captions);
+          sourceForGeneration = captionsData.captions;
         }
-
-        sourceForGeneration = captionsData.captions;
       }
 
       setLoadingState("generating");
@@ -276,6 +284,7 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
       setVariants(nextVariants);
       setActiveVariantId(nextVariants[0]?.id ?? "");
       setReferencesUsed(data?.referencesUsed ?? 0);
+      setAvoidReferencesUsed(data?.avoidReferencesUsed ?? 0);
       setFeedbackByVariantId({});
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {
@@ -312,6 +321,8 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
     setVariants([]);
     setActiveVariantId("");
     setReferencesUsed(0);
+    setAvoidReferencesUsed(0);
+    setDraftSavedId("");
     setFeedbackByVariantId({});
     setError("");
   };
@@ -356,27 +367,45 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
     }
   };
 
-  return (
-    <AppShell title={title} description={description} statusSlot={<SystemStatus compact />}>
-      <section className="surface-card p-4">
-        <div className="flex items-center justify-between gap-3">
-          <p className="section-label">{inputLabel}</p>
-          <span className="text-[11px] tabular-nums text-zinc-500">
-            {input ? `${wordCount(input)} words / ${input.length} chars` : "Autosaves locally"}
-          </span>
-        </div>
+  const handleSaveDraft = async () => {
+    if (!activeVariant?.content || draftSaving) return;
+    setDraftSaving(true);
+    try {
+      const response = await fetch("/api/drafts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: activeVariant.content,
+          myDraft: activeVariant.content,
+        }),
+      });
+      const data = (await response.json().catch(() => null)) as { error?: string } | null;
+      if (!response.ok) throw new Error(data?.error ?? "Could not save draft.");
+      setDraftSavedId(activeVariant.id);
+      window.setTimeout(() => setDraftSavedId(""), 2500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save draft.");
+    } finally {
+      setDraftSaving(false);
+    }
+  };
 
-        <div className="field-shell mt-4 px-4 py-4">
+  return (
+    <AppShell title={title} statusSlot={<SystemStatus compact />}>
+      <section className="surface-card p-4">
+        <p className="section-label">{inputLabel}</p>
+
+        <div className="field-shell mt-3 px-4 py-4">
           <textarea
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder={placeholder}
-            rows={7}
-            className="min-h-40 w-full resize-none bg-transparent text-[15px] leading-7 text-zinc-100 outline-none placeholder:text-zinc-700"
+            rows={6}
+            className="min-h-36 w-full resize-none bg-transparent text-[15px] leading-7 text-zinc-100 outline-none placeholder:text-zinc-700"
           />
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-3 flex gap-2">
           <button type="button" onClick={() => void handlePaste()} className="ghost-button">
             <ClipboardPaste size={14} />
             Paste
@@ -387,9 +416,6 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
               Clear
             </button>
           ) : null}
-          <span className="ml-auto text-[11px] text-zinc-500">
-            {loading ? "Working on new options" : "Draft stays on this device"}
-          </span>
         </div>
       </section>
 
@@ -432,7 +458,7 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
             <div>
               <p className="section-label">Output</p>
               <p className="mt-3 text-[18px] font-medium text-white">
-                {variants.length} refined {variants.length === 1 ? "option" : "options"}
+                {variants.length} refined {variants.length === 1 ? "post" : "posts"}
               </p>
             </div>
             <div className="text-right text-[11px] tabular-nums text-zinc-500">
@@ -457,7 +483,7 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
                         : "rounded-full border border-white/[0.06] bg-transparent px-3 py-2 text-[12px] text-zinc-500"
                     }
                   >
-                    Option {index + 1}
+                    Post {index + 1}
                   </button>
                 );
               })}
@@ -470,19 +496,14 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
             </p>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-zinc-500">
-            <span className="rounded-full border border-white/[0.06] px-3 py-1.5">
-              Target {selectedLength.range}
-            </span>
-            <span className="rounded-full border border-white/[0.06] px-3 py-1.5">
-              Feeling {selectedTone.label}
-            </span>
-            <span className="rounded-full border border-white/[0.06] px-3 py-1.5">
-              Voice references {referencesUsed}
-            </span>
-          </div>
+          {referencesUsed > 0 ? (
+            <p className="mt-2 text-[11px] text-zinc-600">
+              {referencesUsed} style {referencesUsed === 1 ? "example" : "examples"} used
+              {avoidReferencesUsed > 0 ? ` · ${avoidReferencesUsed} rejected ${avoidReferencesUsed === 1 ? "pattern" : "patterns"} avoided` : ""}
+            </p>
+          ) : null}
 
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-4 flex flex-wrap gap-3">
             <button
               type="button"
               onClick={() => void handleFeedback("like")}
@@ -512,6 +533,21 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
           </div>
 
           <div className="mt-5 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => void handleSaveDraft()}
+              disabled={draftSaving || draftSavedId === activeVariant.id}
+              className="secondary-button flex-1"
+            >
+              {draftSavedId === activeVariant.id ? (
+                <Check size={16} />
+              ) : draftSaving ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <PenLine size={16} />
+              )}
+              {draftSavedId === activeVariant.id ? "Saved!" : "Draft"}
+            </button>
             <CopyButton text={activeVariant.content} />
             <button type="button" onClick={handleShare} className="secondary-button flex-1">
               <ArrowUpRight size={16} />

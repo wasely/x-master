@@ -1,3 +1,5 @@
+import { getLengthOption, getToneOption } from "@/lib/content-options";
+
 export type TweetMetadata = {
   sourceType?: "tweet_url" | "manual";
   sourceUrl?: string;
@@ -73,9 +75,9 @@ export function toTweetRecord(
     authorName: metadata?.authorName,
     notes: metadata?.notes,
     tags: normalizeTags(metadata),
-    tone: metadata?.tone,
+    tone: metadata?.tone ? getToneOption(metadata.tone).id : undefined,
     category: metadata?.category,
-    length: metadata?.length,
+    length: metadata?.length ? getLengthOption(metadata.length).id : undefined,
     createdAt: metadata?.createdAt,
     distance,
   };
@@ -115,9 +117,9 @@ export function buildTweetMetadata(input: {
   if (input.authorName) metadata.authorName = input.authorName;
   if (input.notes) metadata.notes = input.notes;
   if (input.tags?.length) metadata.tagCsv = input.tags.join(", ");
-  if (input.tone) metadata.tone = input.tone;
+  if (input.tone) metadata.tone = getToneOption(input.tone).id;
   if (input.category) metadata.category = input.category;
-  if (input.length) metadata.length = input.length;
+  if (input.length) metadata.length = getLengthOption(input.length).id;
 
   return metadata;
 }
