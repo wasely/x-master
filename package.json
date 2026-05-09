@@ -4,7 +4,6 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "chroma:run": "C:/Users/kaigu/bin/chroma.exe run --path C:/Users/kaigu/chroma-data --host localhost --port 8000",
     "dev": "node scripts/dev.mjs",
     "dev:public": "node scripts/dev-public.mjs",
     "drive:auth": "node scripts/drive-auth.mjs",
@@ -17,9 +16,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@chroma-core/default-embed": "^0.1.9",
     "@phosphor-icons/react": "^2.1.10",
-    "chromadb": "^3.4.3",
+    "@supabase/supabase-js": "^2.105.4",
     "expo": "~55.0.17",
     "expo-dev-client": "~55.0.28",
     "framer-motion": "^11.2.10",
