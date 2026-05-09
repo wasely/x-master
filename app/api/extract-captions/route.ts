@@ -153,6 +153,8 @@ async function captionsViaOEmbed(url: string): Promise<string | null> {
   }
 }
 
+const ON_VERCEL = Boolean(process.env.VERCEL);
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { url?: unknown };
@@ -162,9 +164,11 @@ export async function POST(request: Request) {
       return NextResponse.json(ERROR_RESPONSE, { status: 400 });
     }
 
-    const captions =
-      (await captionsViaHtmlScrape(url)) ??
-      (await captionsViaOEmbed(url));
+    // On Vercel, TikTok blocks datacenter IPs so HTML scraping always fails
+    // and would consume most of the 10s function timeout before oEmbed gets tried.
+    const captions = ON_VERCEL
+      ? await captionsViaOEmbed(url)
+      : ((await captionsViaHtmlScrape(url)) ?? (await captionsViaOEmbed(url)));
 
     if (!captions) {
       return NextResponse.json(ERROR_RESPONSE, { status: 400 });
