@@ -374,6 +374,10 @@ export async function POST(request: Request) {
 
   tweetText = cleanTweetTextForStorage(tweetText);
 
+  if (tweetText.split(/\s+/).filter(Boolean).length < 4) {
+    return jsonError("Tweet is too short to be a useful style example.", 422);
+  }
+
   if (!tweetText) {
     return jsonError(
       "I found the tweet link, but could not read the tweet text. Paste the tweet text with the link and save again.",
