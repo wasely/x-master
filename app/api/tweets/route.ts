@@ -64,6 +64,34 @@ function extractTweetId(url: string) {
   return url.match(/(?:x\.com|twitter\.com)\/[^/]+\/status(?:es)?\/(\d+)/i)?.[1];
 }
 
+function normalizeAuthorHandle(value: unknown) {
+  if (typeof value !== "string") return undefined;
+  const clean = value.trim().replace(/^@/, "");
+  return /^[a-zA-Z0-9_]{1,15}$/.test(clean) ? clean : undefined;
+}
+
+function extractAuthorHandleFromUrl(url?: string) {
+  if (!url) return undefined;
+  try {
+    const parsed = new URL(url);
+    const [handle, segment] = parsed.pathname.split("/").filter(Boolean);
+    if (!handle || (segment && segment !== "status")) return undefined;
+    return normalizeAuthorHandle(handle);
+  } catch {
+    return undefined;
+  }
+}
+
+function cleanTweetTextForStorage(text: string): string {
+  return text
+    .replace(/https?:\/\/\S+/gi, "")  // URLs
+    .replace(/@\w+/g, "")             // @mentions
+    .replace(/#\w+/g, "")             // #hashtags
+    .replace(/[ \t]{2,}/g, " ")       // collapsed spaces
+    .replace(/\n{3,}/g, "\n\n")       // collapsed blank lines
+    .trim();
+}
+
 function decodeEntities(value: string) {
   return value
     .replace(/&amp;/g, "&")
@@ -97,6 +125,7 @@ async function fetchTweetTextFromOembed(url: string) {
   const data = (await response.json()) as {
     html?: string;
     author_name?: string;
+    author_url?: string;
     url?: string;
   };
 
@@ -108,6 +137,7 @@ async function fetchTweetTextFromOembed(url: string) {
   return {
     text,
     authorName: data.author_name,
+    authorHandle: extractAuthorHandleFromUrl(data.author_url ?? data.url ?? url),
     sourceUrl: data.url ?? url,
   };
 }
@@ -286,7 +316,7 @@ export async function GET(request: Request) {
 
     return json({ examples, query: "", filter });
   } catch (error) {
-    return jsonError("Could not read tweet examples from Chroma.", 503, error);
+    return jsonError("Could not read tweet examples from the vector database.", 503, error);
   }
 }
 
@@ -295,6 +325,8 @@ export async function POST(request: Request) {
     input?: string;
     notes?: string;
     tweetText?: string;
+    authorName?: unknown;
+    authorHandle?: unknown;
     tags?: unknown;
     tone?: unknown;
     category?: unknown;
@@ -309,6 +341,9 @@ export async function POST(request: Request) {
 
   const input = body.input?.trim();
   const notes = body.notes?.trim();
+  const requestedAuthorName =
+    typeof body.authorName === "string" ? body.authorName.trim().replace(/^@/, "") : "";
+  const requestedAuthorHandle = normalizeAuthorHandle(body.authorHandle);
 
   if (!input) {
     return jsonError("Paste a tweet URL or tweet text first.", 400);
@@ -319,19 +354,25 @@ export async function POST(request: Request) {
   const rawTweetText = body.tweetText?.trim() || "";
   // If the scraped text is just a bare URL (e.g. a t.co link), discard it and let oEmbed fetch the real text
   let tweetText = /^https?:\/\/\S+$/.test(rawTweetText) ? "" : rawTweetText;
-  let authorName: string | undefined;
+  let authorName: string | undefined = requestedAuthorName || undefined;
+  let authorHandle: string | undefined = requestedAuthorHandle;
   let sourceUrl = url;
 
   if (!tweetText && url) {
     const oembedTweet = await fetchTweetTextFromOembed(url);
     tweetText = oembedTweet?.text ?? "";
-    authorName = oembedTweet?.authorName;
+    authorName = authorName ?? oembedTweet?.authorName;
+    authorHandle = authorHandle ?? oembedTweet?.authorHandle;
     sourceUrl = oembedTweet?.sourceUrl ?? url;
   }
+
+  authorHandle = authorHandle ?? extractAuthorHandleFromUrl(sourceUrl);
 
   if (!tweetText) {
     tweetText = url ? input.replace(url, "").trim() : input;
   }
+
+  tweetText = cleanTweetTextForStorage(tweetText);
 
   if (!tweetText) {
     return jsonError(
@@ -359,6 +400,7 @@ export async function POST(request: Request) {
     sourceUrl,
     tweetId,
     authorName,
+    authorHandle,
     notes,
     tags: tags.length ? tags : inferred.tags,
     tone,
@@ -377,7 +419,7 @@ export async function POST(request: Request) {
 
     return json({ example: toTweetRecord(id, tweetText, metadata) });
   } catch (error) {
-    return jsonError("Could not save tweet example to Chroma.", 503, error);
+    return jsonError("Could not save tweet example to the vector database.", 503, error);
   }
 }
 
@@ -397,6 +439,6 @@ export async function DELETE(request: Request) {
     await collection.delete({ ids: [id] });
     return json({ ok: true });
   } catch (error) {
-    return jsonError("Could not delete from Chroma.", 503, error);
+    return jsonError("Could not delete from the vector database.", 503, error);
   }
 }
