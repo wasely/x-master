@@ -1,18 +1,12 @@
-import { execFile } from "child_process";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, unlinkSync } from "fs";
-import os from "os";
-import path from "path";
-import { promisify } from "util";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
 const ERROR_RESPONSE = { error: "Could not extract captions from this video" };
-const execFileAsync = promisify(execFile);
 
 function cleanSubtitleText(subtitle: string) {
   const cleanedLines = subtitle
-    .replace(/^\uFEFF/, "")
+    .replace(/^﻿/, "")
     .replace(/\r/g, "")
     .split("\n")
     .map((line) =>
@@ -41,50 +35,94 @@ function cleanSubtitleText(subtitle: string) {
     .trim();
 }
 
-function findSubtitleFile(tempFolder: string) {
-  return readdirSync(tempFolder)
-    .filter((fileName) => /\.(vtt|srt)$/i.test(fileName))
-    .sort((left, right) => {
-      const leftScore = /\.en[\.-]/i.test(left) ? 0 : 1;
-      const rightScore = /\.en[\.-]/i.test(right) ? 0 : 1;
+function findEnglishSubtitleUrl(subtitleInfos: unknown): string | null {
+  if (!Array.isArray(subtitleInfos) || subtitleInfos.length === 0) return null;
 
-      return leftScore - rightScore;
-    })
-    .map((fileName) => path.join(tempFolder, fileName))
-    .at(0);
+  const entries = subtitleInfos as Array<Record<string, unknown>>;
+  const english = entries.find(
+    (s) => typeof s.LanguageCodeName === "string" && s.LanguageCodeName.toLowerCase().startsWith("en"),
+  );
+  const chosen = english ?? entries[0];
+  return typeof chosen?.Url === "string" ? chosen.Url : null;
 }
 
-function buildCommandArgs({ url, outputPath }: { url: string; outputPath: string }) {
-  return [
-    "--write-auto-sub",
-    "--write-sub",
-    "--skip-download",
-    "--sub-langs",
-    "en.*,eng.*,en-US,eng-US,en",
-    "--no-playlist",
-    "--no-warnings",
-    "--retries",
-    "0",
-    "--extractor-retries",
-    "0",
-    "--socket-timeout",
-    "8",
-    "--output",
-    outputPath,
-    url,
-  ];
+function extractSubtitleUrl(data: unknown): string | null {
+  if (!data || typeof data !== "object") return null;
+
+  const obj = data as Record<string, unknown>;
+
+  // __UNIVERSAL_DATA_FOR_REHYDRATION__ format (current TikTok web app)
+  try {
+    const scope = obj["__DEFAULT_SCOPE__"] as Record<string, unknown> | undefined;
+    const videoDetail = scope?.["webapp.video-detail"] as Record<string, unknown> | undefined;
+    const itemStruct = (videoDetail?.["itemInfo"] as Record<string, unknown> | undefined)?.["itemStruct"] as
+      | Record<string, unknown>
+      | undefined;
+    const url = findEnglishSubtitleUrl(
+      (itemStruct?.["video"] as Record<string, unknown> | undefined)?.["subtitleInfos"],
+    );
+    if (url) return url;
+  } catch {}
+
+  // SIGI_STATE format (older TikTok pages)
+  try {
+    const itemModule = obj["ItemModule"] as Record<string, Record<string, unknown>> | undefined;
+    if (itemModule) {
+      for (const videoId of Object.keys(itemModule)) {
+        const video = itemModule[videoId]?.["video"] as Record<string, unknown> | undefined;
+        const url = findEnglishSubtitleUrl(video?.["subtitleInfos"]);
+        if (url) return url;
+      }
+    }
+  } catch {}
+
+  return null;
 }
 
-async function runYtDlp(args: string[]) {
-  await execFileAsync("yt-dlp", args, {
-    timeout: 20000,
-    windowsHide: true,
+async function fetchTikTokPage(url: string): Promise<string> {
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Cache-Control": "no-cache",
+      "Sec-Fetch-Dest": "document",
+      "Sec-Fetch-Mode": "navigate",
+      "Sec-Fetch-Site": "none",
+      "Upgrade-Insecure-Requests": "1",
+    },
+    redirect: "follow",
+    signal: AbortSignal.timeout(15000),
   });
+
+  if (!res.ok) throw new Error(`TikTok returned ${res.status}`);
+  return res.text();
+}
+
+function parseSubtitleUrlFromHtml(html: string): string | null {
+  // Try __UNIVERSAL_DATA_FOR_REHYDRATION__ (script tag with JSON content)
+  const universalMatch = html.match(
+    /<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>([\s\S]*?)<\/script>/,
+  );
+  if (universalMatch?.[1]) {
+    try {
+      return extractSubtitleUrl(JSON.parse(universalMatch[1]));
+    } catch {}
+  }
+
+  // Try SIGI_STATE (inline JS assignment)
+  const sigiMatch = html.match(/window\[['"]SIGI_STATE['"]\]\s*=\s*(\{[\s\S]*?\});\s*(?:window\[|<\/script>)/);
+  if (sigiMatch?.[1]) {
+    try {
+      return extractSubtitleUrl(JSON.parse(sigiMatch[1]));
+    } catch {}
+  }
+
+  return null;
 }
 
 export async function POST(request: Request) {
-  let tempFolder = "";
-
   try {
     const body = (await request.json()) as { url?: unknown };
     const url = typeof body.url === "string" ? body.url.trim() : "";
@@ -93,35 +131,21 @@ export async function POST(request: Request) {
       return NextResponse.json(ERROR_RESPONSE, { status: 400 });
     }
 
-    tempFolder = mkdtempSync(path.join(os.tmpdir(), "x-master-captions-"));
-    const outputPath = path.join(tempFolder, "captions");
-    const commandArgs = buildCommandArgs({ url, outputPath });
+    const html = await fetchTikTokPage(url);
+    const subtitleUrl = parseSubtitleUrlFromHtml(html);
 
-    try {
-      await runYtDlp(commandArgs);
-    } catch {
-      // Some TikToks still yield usable subtitle files even when yt-dlp exits non-zero.
-    }
-
-    const subtitleFile = findSubtitleFile(tempFolder);
-    if (!subtitleFile) {
+    if (!subtitleUrl) {
       return NextResponse.json(ERROR_RESPONSE, { status: 400 });
     }
 
-    const subtitle = readFileSync(subtitleFile, "utf8");
-    const captions = cleanSubtitleText(subtitle);
-    unlinkSync(subtitleFile);
+    const subRes = await fetch(subtitleUrl, { signal: AbortSignal.timeout(10000) });
+    if (!subRes.ok) return NextResponse.json(ERROR_RESPONSE, { status: 400 });
 
-    if (!captions) {
-      return NextResponse.json(ERROR_RESPONSE, { status: 400 });
-    }
+    const captions = cleanSubtitleText(await subRes.text());
+    if (!captions) return NextResponse.json(ERROR_RESPONSE, { status: 400 });
 
     return NextResponse.json({ captions });
   } catch {
     return NextResponse.json(ERROR_RESPONSE, { status: 400 });
-  } finally {
-    if (tempFolder && existsSync(tempFolder)) {
-      rmSync(tempFolder, { recursive: true, force: true });
-    }
   }
 }
