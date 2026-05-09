@@ -122,6 +122,37 @@ function parseSubtitleUrlFromHtml(html: string): string | null {
   return null;
 }
 
+async function captionsViaHtmlScrape(url: string): Promise<string | null> {
+  try {
+    const html = await fetchTikTokPage(url);
+    const subtitleUrl = parseSubtitleUrlFromHtml(html);
+    if (!subtitleUrl) return null;
+
+    const subRes = await fetch(subtitleUrl, { signal: AbortSignal.timeout(10000) });
+    if (!subRes.ok) return null;
+
+    const captions = cleanSubtitleText(await subRes.text());
+    return captions || null;
+  } catch {
+    return null;
+  }
+}
+
+async function captionsViaOEmbed(url: string): Promise<string | null> {
+  try {
+    const oembedUrl = `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`;
+    const res = await fetch(oembedUrl, { signal: AbortSignal.timeout(10000) });
+    if (!res.ok) return null;
+
+    const data = (await res.json().catch(() => null)) as Record<string, unknown> | null;
+    const title = typeof data?.title === "string" ? data.title.trim() : "";
+    // Require at least 20 chars of real content (not just hashtags/emoji)
+    return title.replace(/#\w+/g, "").trim().length >= 20 ? title : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { url?: unknown };
@@ -131,18 +162,13 @@ export async function POST(request: Request) {
       return NextResponse.json(ERROR_RESPONSE, { status: 400 });
     }
 
-    const html = await fetchTikTokPage(url);
-    const subtitleUrl = parseSubtitleUrlFromHtml(html);
+    const captions =
+      (await captionsViaHtmlScrape(url)) ??
+      (await captionsViaOEmbed(url));
 
-    if (!subtitleUrl) {
+    if (!captions) {
       return NextResponse.json(ERROR_RESPONSE, { status: 400 });
     }
-
-    const subRes = await fetch(subtitleUrl, { signal: AbortSignal.timeout(10000) });
-    if (!subRes.ok) return NextResponse.json(ERROR_RESPONSE, { status: 400 });
-
-    const captions = cleanSubtitleText(await subRes.text());
-    if (!captions) return NextResponse.json(ERROR_RESPONSE, { status: 400 });
 
     return NextResponse.json({ captions });
   } catch {
