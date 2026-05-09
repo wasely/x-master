@@ -286,13 +286,22 @@ function selectReferencesForStyle(
     .slice(0, maxCount);
 }
 
+function cleanReferenceText(raw: string): string {
+  return cleanText(raw)
+    .replace(/https?:\/\/\S+/gi, "")
+    .replace(/@\w+/g, "")
+    .replace(/#\w+/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function mapReference(
   text: string | null,
   metadata?: TweetMetadata | null,
   distance?: number,
 ): StyleReference | null {
-  const clean = cleanText(text ?? "");
-  if (!clean) return null;
+  const clean = cleanReferenceText(text ?? "");
+  if (!clean || clean.split(/\s+/).filter(Boolean).length < 4) return null;
 
   return {
     text: clean,

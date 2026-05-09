@@ -141,7 +141,7 @@ async function captionsViaHtmlScrape(url: string): Promise<string | null> {
 async function captionsViaOEmbed(url: string): Promise<string | null> {
   try {
     const oembedUrl = `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`;
-    const res = await fetch(oembedUrl, { signal: AbortSignal.timeout(10000) });
+    const res = await fetch(oembedUrl, { signal: AbortSignal.timeout(6000) });
     if (!res.ok) return null;
 
     const data = (await res.json().catch(() => null)) as Record<string, unknown> | null;
