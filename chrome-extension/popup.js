@@ -10,7 +10,7 @@ const saveBtn = document.getElementById("save");
 const detectBtn = document.getElementById("detect");
 const status = document.getElementById("status");
 const targetTab = document.getElementById("targetTab");
-const DEFAULT_APP_URL = "https://x-master-iy458bg51-wasely-3997s-projects.vercel.app";
+const DEFAULT_APP_URL = "https://x-master-peach.vercel.app";
 const PORTS = [3000, 3001, 3002, 3003];
 
 function setStatus(message, state = "") {

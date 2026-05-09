@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "X Master — Save Tweet",
-  "version": "1.1.0",
-  "description": "Right-click any tweet to save it to your X Master App database.",
-  "permissions": ["contextMenus", "notifications", "storage", "scripting"],
+  "name": "X Master",
+  "version": "1.2.1",
+  "description": "Save X posts to your style library, generate database-backed replies, and send X videos to Google Drive.",
+  "permissions": ["contextMenus", "notifications", "storage", "scripting", "tabs"],
   "host_permissions": [
     "https://twitter.com/*",
     "https://x.com/*",
+    "https://x-master-peach.vercel.app/*",
     "http://localhost:3000/*",
     "http://localhost:3001/*",
     "http://localhost:3002/*",
@@ -14,6 +15,12 @@
   ],
   "background": {
     "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
   "content_scripts": [
     {
@@ -23,7 +30,13 @@
     }
   ],
   "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
     "default_popup": "popup.html",
-    "default_title": "X Master App"
+    "default_title": "X Master"
   }
 }

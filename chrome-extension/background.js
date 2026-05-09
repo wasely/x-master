@@ -2,7 +2,7 @@ const MENU_ID = "x-master-save-tweet";
 const DRAFT_MENU_ID = "x-master-save-draft";
 const DRIVE_VIDEO_MESSAGE = "SAVE_X_VIDEO_TO_DRIVE";
 const REPLY_GENERATION_MESSAGE = "GENERATE_TWEET_REPLY";
-const DEFAULT_APP_URL = "https://x-master-iy458bg51-wasely-3997s-projects.vercel.app";
+const DEFAULT_APP_URL = "https://x-master-peach.vercel.app";
 const PORTS = [3000, 3001, 3002, 3003];
 
 chrome.runtime.onInstalled.addListener(() => {
