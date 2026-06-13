@@ -1,0 +1,588 @@
+{
+  "schemaVersion": 1,
+  "embeddingModel": "BAAI/bge-small-en-v1.5",
+  "embeddingDimensions": 384,
+  "collections": {
+    "tweet_examples": [
+      {
+        "id": "x-2050731527550701871",
+        "document": "ASO is the new SEO.\n\nHis app makes $50K every month without running ads.\n\nThese 14 mins might change your life:",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-03T20:01:10.969Z",
+          "length": "medium",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/starter_story/status/2050731527550701871",
+          "tagCsv": "makes, every, month, without, running, these",
+          "tone": "impactful",
+          "tweetId": "2050731527550701871"
+        }
+      },
+      {
+        "id": "x-2049947986286030932",
+        "document": "https://t.co/WbpJvumbcD",
+        "metadata": {
+          "authorName": "se",
+          "category": "general",
+          "createdAt": "2026-05-03T20:12:06.680Z",
+          "length": "short",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://twitter.com/seyong/status/2049947986286030932",
+          "tagCsv": "https, wbpjvumbcd",
+          "tone": "impactful",
+          "tweetId": "2049947986286030932"
+        }
+      },
+      {
+        "id": "x-2050610367663841747",
+        "document": "crazy our intern is born in 2006. i have shoes older than him lol",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-03T20:12:20.819Z",
+          "length": "short",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/seyong/status/2050610367663841747",
+          "tagCsv": "crazy, intern, shoes, older",
+          "tone": "funny",
+          "tweetId": "2050610367663841747"
+        }
+      },
+      {
+        "id": "x-2050697912250741001",
+        "document": "yo \n@livetoraise\n i got some 2002 red pro foamposites for u when u turn 21",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-03T20:12:23.280Z",
+          "length": "short",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/seyong/status/2050697912250741001",
+          "tagCsv": "livetoraise, foamposites",
+          "tone": "impactful",
+          "tweetId": "2050697912250741001"
+        }
+      },
+      {
+        "id": "x-2050211991030043103",
+        "document": "prediction market -> memecoin -> pre-ipo -> ipo",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-03T20:16:47.049Z",
+          "length": "short",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/seyong/status/2050211991030043103",
+          "tagCsv": "prediction, market, memecoin, pre-ipo",
+          "tone": "impactful",
+          "tweetId": "2050211991030043103"
+        }
+      },
+      {
+        "id": "x-2049894511145279801",
+        "document": "How to Make An Entire iOS App That Doesn't Look Like AI Slop (1 Hour Full Walkthrough)\n\nLet's go through how to use Claude Code, Claude Design, Seedance 2.0, GPT Image 2.0 and a few other tools to make sure this iOS app is as far from AI slop as possible while also having a",
+        "metadata": {
+          "category": "ai",
+          "createdAt": "2026-05-03T20:27:13.552Z",
+          "length": "long",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/ashen_one/status/2049894511145279801",
+          "tagCsv": "ai, automation, tools, entire, doesn, walkthrough",
+          "tone": "educational",
+          "tweetId": "2049894511145279801"
+        }
+      },
+      {
+        "id": "x-2050274121939042724",
+        "document": "claude design is my all time favorite anthropic drop this year, even more than opus 4.7\n\nits actually really really good at design and the \"handoff to claude code\" makes it basically copy/paste ui to the actual working product\n\nclaude design made the entire ui for merl (full",
+        "metadata": {
+          "authorName": "ashen",
+          "category": "product",
+          "createdAt": "2026-05-03T20:27:30.975Z",
+          "length": "long",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/ashen_one/status/2050274121939042724/analytics",
+          "tagCsv": "product, ux, strategy, claude, design, favorite",
+          "tone": "impactful",
+          "tweetId": "2050274121939042724"
+        }
+      },
+      {
+        "id": "x-2051036199155044510",
+        "document": "my god so we basically have 5 of the richest companies in the world spending $800 Billion on ai capex this year and $1.1 TRILLION next year\n\n\u201cSEE! we\u2019re in an AI bubble\u201d \n\nexcept we\u2019re fucking not - Q1 earnings showed Google, Amazon and Meta not only achieving record revenue\u2026",
+        "metadata": {
+          "category": "ai",
+          "createdAt": "2026-05-03T20:31:17.246Z",
+          "length": "long",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/cryptopunk7213/status/2051036199155044510",
+          "tagCsv": "ai, automation, tools, basically, richest, companies",
+          "tone": "impactful",
+          "tweetId": "2051036199155044510"
+        }
+      },
+      {
+        "id": "x-2051034961826705695",
+        "document": "I thought my roommate was watching porn at 3am. He was making $27,400 a month.\n\nThe girl on his screen doesn't exist.\n\nHe built her on a MacBook.\n\n47 photos trained her face. 90 seconds of audio cloned her voice. 6 text files made her a person. Total build cost: $70.\n\nFirst week:\u2026",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-03T20:32:36.850Z",
+          "length": "long",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/Raytargt/status/2051034961826705695",
+          "tagCsv": "thought, roommate, watching, making, month, screen",
+          "tone": "serious",
+          "tweetId": "2051034961826705695"
+        }
+      },
+      {
+        "id": "x-2050492081789894913",
+        "document": "This is not theoretical, and he is not first.\n\nAitana L\u00f3pez\n\nEmily Pellegrini\n\n\"I asked ChatGPT what's the average man's dream girl, and it said brown hair and long legs. So I made her exactly how it said.\"\n\nAitana took eighteen months to build. Emily took fourteen-hour workdays for half a year. Maya was built in four weeks.\n\nMaya is four files.\n\nFour weeks, in order.\n\nWeek 1 \u2014 persona.md.\n\nWeek 2 \u2014 flux.md + LoRA.\n\nWeek 3 \u2014 voice.md + ElevenLabs.\n\nWeek 4 \u2014 brain.md + orchestrator.\n\nThis was not possible eighteen months ago.\n\nThe math.\n\nOnlyFans is the wedge, not the product.",
+        "metadata": {
+          "category": "product",
+          "createdAt": "2026-05-03T20:32:46.156Z",
+          "length": "thread",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/Raytargt/status/2050492081789894913/analytics",
+          "tagCsv": "product, ux, strategy, theoretical, first, aitana",
+          "tone": "motivational",
+          "tweetId": "2050492081789894913"
+        }
+      },
+      {
+        "id": "x-2048780236545024139",
+        "document": "Lacy got into a debate with his chat after saying he's not \"rich\", revealing that his current net worth is $3-4 million \n\n- 50% to taxes living in California \n- expenses\n- investing into content \n- long term investments\n\n\"rich to me is having $10 million\"",
+        "metadata": {
+          "category": "creator",
+          "createdAt": "2026-05-03T20:33:23.521Z",
+          "length": "long",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/yoxics/status/2048780236545024139",
+          "tagCsv": "creator, content, audience, debate, after, saying",
+          "tone": "impactful",
+          "tweetId": "2048780236545024139"
+        }
+      },
+      {
+        "id": "x-2048773269256610240",
+        "document": "I. the villain scene\n\nII. what brainrot content actually is \u2014 and why it works\n\nIII. the $0 cac model \u2014 how it actually flows\n\nIV. the character selection playbook\n\nV. the content structure that actually converts\n\nVI. distribution \u2014 how you actually get to 500k\n\nVII. the compounding math nobody talks about\n\nVIII. layering affiliatenetwork into the model\n\ngo to affiliatenetwork.com\n\nfilter campaigns by niche\n\npick a brand that fits your audience\n\nembed the brand into 2-3 of your brainrot videos per week the same way you embed your own product\n\nIX. the window and why it is closing\n\nX. the actual steps \u2014 run this today",
+        "metadata": {
+          "category": "ai",
+          "createdAt": "2026-05-03T20:33:26.142Z",
+          "length": "thread",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/whotfiszackk/status/2048773269256610240/analytics",
+          "tagCsv": "ai, automation, tools, villain, scene, brainrot",
+          "tone": "educational",
+          "tweetId": "2048773269256610240"
+        }
+      },
+      {
+        "id": "x-2048453843831427547",
+        "document": "I. the person losing money right now\n\nII. why faceless accounts change everything\n\nbatch 30 pieces of content in a single afternoon\n\nhire editors or use ai to produce without being present\n\nreplicate the model across 10 different niches simultaneously\n\nnever worry about burnout killing your revenue\n\nIII. the niches that actually work right now\n\npersonal finance / wealth building\n\ntech and ai tools\n\nfitness and body transformation\n\nrelationships and dating psychology\n\nproductivity and high performance\n\nentrepreneurship and side hustles\n\ntravel\n\nfood and recipes\n\nparenting\n\nhome and interior design\n\nentertainment / memes \u2014 high views, low buying intent, brands pay less\n\ngaming \u2014 massive competition, harder to monetize per view\n\nanything too niche to have brand partners\n\nIV. the ai stack that makes 10 accounts possible\n\nV. the content system \u2014 how to batch 10 accounts in one week\n\npull 10 trending topics per niche using the platform's search bar and creator search inspire\n\nidentify 3 content angles per topic: educational, controversial, story-format\n\nbrief your ai tool with the niche, angle, hook template, and cta\n\nexport 20-30 scripts\n\nrun all scripts through elevenlabs\n\nassemble videos in capcut using saved templates\n\nadd captions, overlays, any graphics\n\nexport and label all files by account\n\nupload everything to metricool\n\nschedule 2-3 posts per account, per day\n\noptimize posting times per niche (finance does well 6am-9am. fitness does well 5pm-8pm.)\n\nVI. how the money actually works\n\n10 accounts averaging 400k views/month each\n\n4 million total views per month\n\nat $1.50 average cpm from brand campaigns\n\nmonthly revenue: $6,000\n\n15 million total views per month\n\nat $2.00 average cpm\n\nmonthly revenue: $30,000\n\n$37,500/month from views alone\n\nVII. picking campaigns on affiliatenetwork\n\nVIII. the moment you have to commit\n\nIX. how to start today \u2014 the actual steps",
+        "metadata": {
+          "category": "ai",
+          "createdAt": "2026-05-03T20:33:30.638Z",
+          "length": "thread",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/whotfiszackk/status/2048453843831427547/analytics",
+          "tagCsv": "ai, automation, tools, person, losing, money",
+          "tone": "educational",
+          "tweetId": "2048453843831427547"
+        }
+      },
+      {
+        "id": "x-2048019561937543480",
+        "document": "sign up to glitchy\n\npick one female-audience offer\n\nbuild your landing page\n\npost your first slideshow",
+        "metadata": {
+          "category": "marketing",
+          "createdAt": "2026-05-03T20:33:34.318Z",
+          "length": "medium",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/ky_markets/status/2048019561937543480/analytics",
+          "tagCsv": "marketing, positioning, growth, glitchy, female-audience, offer",
+          "tone": "impactful",
+          "tweetId": "2048019561937543480"
+        }
+      },
+      {
+        "id": "x-2050003598088790022",
+        "document": "the chances of you being born was 1 in 400 trillion you weren't born to dream small",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-05T02:39:47.920Z",
+          "length": "short_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/0xRiver8/status/2050003598088790022",
+          "tagCsv": "chances, being, trillion, weren, dream, small",
+          "tone": "persuasive",
+          "tweetId": "2050003598088790022"
+        }
+      },
+      {
+        "id": "like-a6ed0fb55bfe62229a",
+        "document": "Normalize dating within your IQ range. It saves a lot of explaining.",
+        "metadata": {
+          "category": "generated",
+          "createdAt": "2026-05-05T02:47:46.131Z",
+          "length": "one_liner",
+          "notes": "generated:like | source:https://www.tiktok.com/@ddp8792/video/7495054955791928619?q=iq&t=1777949107419",
+          "sourceType": "manual",
+          "tagCsv": "like, tiktok, just_typing, one_liner",
+          "tone": "just_typing"
+        }
+      },
+      {
+        "id": "x-2051434798694928657",
+        "document": "\"a wealthy but purposeless man is considerably poorer and unhappier than a man with a purpose who has net yet secured wealth\"",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-05T02:48:52.686Z",
+          "length": "short_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/blknoiz06/status/2051434798694928657",
+          "tagCsv": "wealthy, purposeless, considerably, poorer, unhappier, purpose",
+          "tone": "persuasive",
+          "tweetId": "2051434798694928657"
+        }
+      },
+      {
+        "id": "x-2051166383526818131",
+        "document": "It\u2019s always interesting to me how so many top perp traders get zero recognition",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-05T02:49:00.505Z",
+          "length": "short_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/0xRiver8/status/2051166383526818131",
+          "tagCsv": "always, interesting, traders, recognition",
+          "tone": "persuasive",
+          "tweetId": "2051166383526818131"
+        }
+      },
+      {
+        "id": "x-2051167554492600429",
+        "document": "Ngl better this way when they get too popular like alphawif lorca pigieon to many drones follow them and they disable there twitters cuz its not worth dealing with them",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-05T02:49:03.309Z",
+          "length": "short_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/0xRiver8/status/2051167554492600429",
+          "tagCsv": "better, popular, alphawif, lorca, pigieon, drones",
+          "tone": "persuasive",
+          "tweetId": "2051167554492600429"
+        }
+      },
+      {
+        "id": "x-2050682291941409129",
+        "document": "river lowkey greatest mind of our generation",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-05T02:49:10.064Z",
+          "length": "one_liner",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/0xmaz_/status/2050682291941409129",
+          "tagCsv": "river, lowkey, greatest, generation",
+          "tone": "persuasive",
+          "tweetId": "2050682291941409129"
+        }
+      },
+      {
+        "id": "x-2049594969607020760",
+        "document": "This month has been absolutely genny",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-05T02:49:24.061Z",
+          "length": "one_liner",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/0xRiver8/status/2049594969607020760",
+          "tagCsv": "month, absolutely, genny",
+          "tone": "persuasive",
+          "tweetId": "2049594969607020760"
+        }
+      },
+      {
+        "id": "x-2049565613513658482",
+        "document": "we are living through the greatest market bubble in human history, tune in tomorrow for the next chapter @ 4:30pm EST",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-05T02:49:42.935Z",
+          "length": "short_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/blknoiz06/status/2049565613513658482",
+          "tagCsv": "living, through, greatest, market, bubble, human",
+          "tone": "persuasive",
+          "tweetId": "2049565613513658482"
+        }
+      },
+      {
+        "id": "manual-a561ad104ba843658f",
+        "document": "To view keyboard shortcuts, press question mark\nView keyboard shortcuts\n\nAnsem\n\nAnsem\u2019s posts\n\nWho to follow\n\nYou might like\n\nRhino\n@lBattleRhino\nFollow\n\nZhu Su\n@zhusu\nFollow\n\nCold Blooded Shiller\n@ColdBloodShill\nFollow\n\nTrending now\n\nWhat\u2019s happening",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-05T02:50:20.952Z",
+          "length": "regular_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/blknoiz06",
+          "tagCsv": "keyboard, shortcuts, press, question, ansem, posts",
+          "tone": "persuasive"
+        }
+      },
+      {
+        "id": "x-2051415935030837514",
+        "document": "yall think i can get to 10k subs on twitch or 1M followers on X first",
+        "metadata": {
+          "category": "creator",
+          "createdAt": "2026-05-05T02:50:28.541Z",
+          "length": "short_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/blknoiz06/status/2051415935030837514",
+          "tagCsv": "creator, content, audience, think, twitch, followers",
+          "tone": "persuasive",
+          "tweetId": "2051415935030837514"
+        }
+      },
+      {
+        "id": "x-2051153024886686019",
+        "document": "so what're we buying bros",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-05T02:51:07.417Z",
+          "length": "one_liner",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/blknoiz06/status/2051153024886686019",
+          "tagCsv": "buying",
+          "tone": "persuasive",
+          "tweetId": "2051153024886686019"
+        }
+      },
+      {
+        "id": "x-2049532233774698940",
+        "document": "If you were early and supported hype you were made a multi millionaire by Jeff\n\nIf you were early and supported pump alon extracted every penny you had and tweeted \u201cpumpfolio\u201d once every 7 days and now thats completely gone and he just burned 380 mil that he could have been given",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-05T02:51:16.734Z",
+          "length": "regular_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/0xRiver8/status/2049532233774698940",
+          "tagCsv": "early, supported, multi, millionaire, extracted, every",
+          "tone": "persuasive",
+          "tweetId": "2049532233774698940"
+        }
+      },
+      {
+        "id": "x-2050741448463544740",
+        "document": "wow so pretty here is a heart for you because i love you do you want to be friend wif me? maybe not maybe yes im willing to shoot my shot because why not what do i have to lose? nothing. im just a chudded out chud chudding around on the \u00abX\u00bb app, i think i might be going schizo",
+        "metadata": {
+          "category": "general",
+          "createdAt": "2026-05-05T02:54:29.891Z",
+          "length": "regular_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/0xRiver8/status/2050741448463544740",
+          "tagCsv": "pretty, heart, friend, maybe, willing, shoot",
+          "tone": "calm",
+          "tweetId": "2050741448463544740"
+        }
+      },
+      {
+        "id": "x-2044420621090668822",
+        "document": "\"At its core, transparency isn't just a design choice. It is the structural evolution required to onboard the next billion users... We are trading the false comfort of practical obscurity for the undeniable power of transparency.\"",
+        "metadata": {
+          "category": "product",
+          "createdAt": "2026-05-05T02:55:10.077Z",
+          "length": "regular_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/seyong/status/2044420621090668822",
+          "tagCsv": "product, ux, strategy, transparency, design, choice",
+          "tone": "persuasive",
+          "tweetId": "2044420621090668822"
+        }
+      },
+      {
+        "id": "x-2044412873435136298",
+        "document": "bag working / community building coming back is the only way to avoid PVP microtrenching death",
+        "metadata": {
+          "category": "creator",
+          "createdAt": "2026-05-05T02:55:14.305Z",
+          "length": "short_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/seyong/status/2044412873435136298",
+          "tagCsv": "creator, content, audience, working, community, building",
+          "tone": "persuasive",
+          "tweetId": "2044412873435136298"
+        }
+      },
+      {
+        "id": "x-2051082884627202193",
+        "document": "my dms are open 24/7 whether you're a creator, individual, marketer, company, brand, whatever.\n\njust know if you ever come to me with an idea that's bad, i'm gonna tell you it's bad\n\nif you ever come to me with an idea that's even a little bit good, you're gonna get a response",
+        "metadata": {
+          "category": "marketing",
+          "createdAt": "2026-05-05T02:55:46.911Z",
+          "length": "regular_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/ashen_one/status/2051082884627202193",
+          "tagCsv": "marketing, positioning, growth, whether, creator, individual",
+          "tone": "just_typing",
+          "tweetId": "2051082884627202193"
+        }
+      },
+      {
+        "id": "x-2051363272398651757",
+        "document": "I\u2019m committing to build my startup in public for the next 30 days. I want to prove that even a 16 year old  can build something real.      \n\nDaily progress.   \nWins & mistakes.   \nNo excuses.      \n\nDay 1.",
+        "metadata": {
+          "category": "startup",
+          "createdAt": "2026-05-05T02:56:05.419Z",
+          "length": "regular_post",
+          "sourceType": "tweet_url",
+          "sourceUrl": "https://x.com/onurlyzan/status/2051363272398651757",
+          "tagCsv": "startup, founder, growth, committing, build, public",
+          "tone": "persuasive",
+          "tweetId": "2051363272398651757"
+        }
+      }
+    ],
+    "tweet_rejections": [
+      {
+        "id": "dislike-0ea34bb4f6e92b8e63",
+        "document": "Test rejected generation",
+        "metadata": {
+          "category": "rejected",
+          "createdAt": "2026-04-30T01:43:28.588Z",
+          "length": "medium",
+          "notes": "test reject | generated:dislike | source:Build a tool people want to use every day",
+          "sourceType": "manual",
+          "tagCsv": "dislike, topic, impactful, medium",
+          "tone": "impactful"
+        }
+      },
+      {
+        "id": "dislike-83e70e9f785ea8269a",
+        "document": "No box. Just a story. Unleash your real creativity.",
+        "metadata": {
+          "category": "rejected",
+          "createdAt": "2026-05-03T20:45:51.144Z",
+          "length": "medium",
+          "notes": "generated:dislike | source:https://www.tiktok.com/@jettfranzen/video/7635654845596257550",
+          "sourceType": "manual",
+          "tagCsv": "dislike, tiktok, impactful, medium",
+          "tone": "impactful"
+        }
+      },
+      {
+        "id": "dislike-8e0d364b57e27ce4d2",
+        "document": "It's May the 4th. My wallet feels like the Death Star after a direct hit.",
+        "metadata": {
+          "category": "rejected",
+          "createdAt": "2026-05-05T02:44:11.975Z",
+          "length": "short_post",
+          "notes": "generated:dislike | source:star wars and may the 4th",
+          "sourceType": "manual",
+          "tagCsv": "dislike, topic, funny, short_post",
+          "tone": "funny"
+        }
+      },
+      {
+        "id": "dislike-a5f6894938e68eca1a",
+        "document": "May the 4th be with you! My bank account wishes the 1st was with it. #MayThe4th",
+        "metadata": {
+          "category": "rejected",
+          "createdAt": "2026-05-05T02:44:13.824Z",
+          "length": "short_post",
+          "notes": "generated:dislike | source:star wars and may the 4th",
+          "sourceType": "manual",
+          "tagCsv": "dislike, topic, funny, short_post",
+          "tone": "funny"
+        }
+      },
+      {
+        "id": "dislike-5f018873cfb9dd00c8",
+        "document": "Happy May the 4th! Anyone else spending it rewatching the prequels and questioning all their life choices?",
+        "metadata": {
+          "category": "rejected",
+          "createdAt": "2026-05-05T02:44:20.824Z",
+          "length": "short_post",
+          "notes": "generated:dislike | source:star wars and may the 4th",
+          "sourceType": "manual",
+          "tagCsv": "dislike, topic, funny, short_post",
+          "tone": "funny"
+        }
+      },
+      {
+        "id": "dislike-d727d93520a2805297",
+        "document": "May the 4th? More like May the 40-hour work week. Send snacks. #MayThe4thBeWithYou",
+        "metadata": {
+          "category": "rejected",
+          "createdAt": "2026-05-05T02:44:25.134Z",
+          "length": "short_post",
+          "notes": "generated:dislike | source:star wars and may the 4th",
+          "sourceType": "manual",
+          "tagCsv": "dislike, topic, funny, short_post",
+          "tone": "funny"
+        }
+      },
+      {
+        "id": "dislike-bdd3632555ddb40c36",
+        "document": "Happy May the 4th. May your Wi-Fi be strong and your excuses for not adulting be stronger.",
+        "metadata": {
+          "category": "rejected",
+          "createdAt": "2026-05-05T02:44:29.659Z",
+          "length": "short_post",
+          "notes": "generated:dislike | source:star wars and may the 4th",
+          "sourceType": "manual",
+          "tagCsv": "dislike, topic, funny, short_post",
+          "tone": "funny"
+        }
+      },
+      {
+        "id": "dislike-f24b9a25dee26a975c",
+        "document": "Date someone who understands basic facts. Saves time explaining daylight savings.",
+        "metadata": {
+          "category": "rejected",
+          "createdAt": "2026-05-05T02:47:54.570Z",
+          "length": "one_liner",
+          "notes": "generated:dislike | source:https://www.tiktok.com/@ddp8792/video/7495054955791928619?q=iq&t=1777949107419",
+          "sourceType": "manual",
+          "tagCsv": "dislike, tiktok, just_typing, one_liner",
+          "tone": "just_typing"
+        }
+      },
+      {
+        "id": "dislike-59736381c0627a9808",
+        "document": "Date your IQ. Stop explaining things.",
+        "metadata": {
+          "category": "rejected",
+          "createdAt": "2026-05-05T02:47:57.271Z",
+          "length": "one_liner",
+          "notes": "generated:dislike | source:https://www.tiktok.com/@ddp8792/video/7495054955791928619?q=iq&t=1777949107419",
+          "sourceType": "manual",
+          "tagCsv": "dislike, tiktok, just_typing, one_liner",
+          "tone": "just_typing"
+        }
+      },
+      {
+        "id": "dislike-5d6d133f7afaa56630",
+        "document": "Seeking a partner where explaining continents isn't necessary.",
+        "metadata": {
+          "category": "rejected",
+          "createdAt": "2026-05-05T02:48:01.974Z",
+          "length": "one_liner",
+          "notes": "generated:dislike | source:https://www.tiktok.com/@ddp8792/video/7495054955791928619?q=iq&t=1777949107419",
+          "sourceType": "manual",
+          "tagCsv": "dislike, tiktok, just_typing, one_liner",
+          "tone": "just_typing"
+        }
+      },
+      {
+        "id": "dislike-203487079bc808de89",
+        "document": "Normalize vibecoding.",
+        "metadata": {
+          "category": "rejected",
+          "createdAt": "2026-05-05T04:40:46.705Z",
+          "length": "one_liner",
+          "notes": "generated:dislike | source:twwet about vibecoding",
+          "sourceType": "manual",
+          "tagCsv": "dislike, topic, just_typing, one_liner",
+          "tone": "just_typing"
+        }
+      }
+    ]
+  }
+}

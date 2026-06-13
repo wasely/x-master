@@ -3,38 +3,17 @@ import { spawn } from "node:child_process";
 import net from "node:net";
 import path from "node:path";
 import process from "node:process";
+import {
+  getChromaSetupHelp,
+  parseEnvFile,
+  resolveChromaDataPath,
+  resolveChromaExecutable,
+  resolveChromaHost,
+  resolveChromaPort,
+} from "./chroma-utils.mjs";
 
 const RUNTIME_DIR = path.resolve(".runtime");
 const SERVER_INFO_PATH = path.join(RUNTIME_DIR, "dev-server.json");
-
-function parseEnvFile(filePath) {
-  if (!existsSync(filePath)) return {};
-
-  const output = {};
-  const contents = readFileSync(filePath, "utf8");
-
-  for (const rawLine of contents.split(/\r?\n/)) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
-
-    const equalsIndex = line.indexOf("=");
-    if (equalsIndex === -1) continue;
-
-    const key = line.slice(0, equalsIndex).trim();
-    let value = line.slice(equalsIndex + 1).trim();
-
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1);
-    }
-
-    output[key] = value;
-  }
-
-  return output;
-}
 
 function isPortOpen(host, port) {
   return new Promise((resolve) => {
@@ -139,14 +118,15 @@ async function main() {
   const appPort = await findAvailablePort(appHost, preferredPort);
   const distDir = resolveDistDir(appPort);
   const tsConfigPath = path.resolve("tsconfig.json");
-  const chromaHost = process.env.CHROMA_HOST ?? envFile.CHROMA_HOST ?? "localhost";
-  const chromaPort = Number(process.env.CHROMA_PORT ?? envFile.CHROMA_PORT ?? "8000");
-  const chromaPath =
-    process.env.CHROMA_PATH ?? envFile.CHROMA_PATH ?? "C:/Users/kaigu/chroma-data";
-  const chromaExe =
-    process.env.CHROMA_EXE ?? envFile.CHROMA_EXE ?? "C:/Users/kaigu/bin/chroma.exe";
+  const chromaHost = resolveChromaHost(envFile);
+  const chromaPort = resolveChromaPort(envFile);
+  const chromaPath = resolveChromaDataPath(envFile);
+  const chromaExe = resolveChromaExecutable(envFile);
+  const usesSupabaseVectors = Boolean(process.env.SUPABASE_URL ?? envFile.SUPABASE_URL);
 
   let chromaProcess = null;
+  let chromaLaunchError = null;
+  let chromaExitCode = null;
 
   if (appPort !== preferredPort) {
     console.log(`Port ${preferredPort} is in use. Starting Next on ${appPort} instead.`);
@@ -159,13 +139,14 @@ async function main() {
     port: appPort,
     distDir,
     pid: process.pid,
+    vectorStore: usesSupabaseVectors ? "supabase_pgvector" : "local_chroma",
     startedAt: new Date().toISOString(),
   });
 
-  if (!(await isPortOpen(chromaHost, chromaPort))) {
-    if (!existsSync(chromaExe)) {
+  if (!usesSupabaseVectors && !(await isPortOpen(chromaHost, chromaPort))) {
+    if (!chromaExe) {
       clearServerInfo();
-      console.error(`Chroma binary not found at ${chromaExe}`);
+      console.error(`Could not find the Chroma executable. ${getChromaSetupHelp()}`);
       process.exit(1);
     }
 
@@ -178,21 +159,35 @@ async function main() {
       },
     );
 
+    chromaProcess.on("error", (error) => {
+      chromaLaunchError = error instanceof Error ? error.message : String(error);
+    });
+
     chromaProcess.on("exit", (code) => {
       if (code && code !== 0) {
-        console.error(`Chroma exited with code ${code}.`);
+        chromaExitCode = code;
       }
     });
 
     const ready = await waitForPort(chromaHost, chromaPort, 30000);
     if (!ready) {
       clearServerInfo();
-      console.error(`Chroma did not become ready on ${chromaHost}:${chromaPort}.`);
+      if (chromaLaunchError) {
+        console.error(`Could not start Chroma (${chromaLaunchError}). ${getChromaSetupHelp()}`);
+      } else if (chromaExitCode) {
+        console.error(`Chroma exited with code ${chromaExitCode} before it became ready.`);
+      } else {
+        console.error(`Chroma did not become ready on ${chromaHost}:${chromaPort}.`);
+      }
       process.exit(1);
     }
   }
 
-  console.log(`Using build directory ${distDir}.`);
+  console.log(
+    usesSupabaseVectors
+      ? `Using Supabase pgvector and build directory ${distDir}.`
+      : `Using local Chroma and build directory ${distDir}.`,
+  );
 
   const nextProcess = spawn(
     process.execPath,

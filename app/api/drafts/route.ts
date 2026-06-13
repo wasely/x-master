@@ -27,6 +27,7 @@ type Draft = {
   text: string;
   sourceUrl?: string;
   authorName?: string;
+  authorHandle?: string;
   myDraft: string;
   createdAt: string;
 };
@@ -56,7 +57,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  let body: { text?: string; sourceUrl?: string; authorName?: string; myDraft?: string };
+  let body: { text?: string; sourceUrl?: string; authorName?: string; authorHandle?: string; myDraft?: string };
   try {
     body = await request.json();
   } catch {
@@ -71,6 +72,7 @@ export async function POST(request: Request) {
     text,
     sourceUrl: body.sourceUrl?.trim() || undefined,
     authorName: body.authorName?.trim() || undefined,
+    authorHandle: body.authorHandle?.trim().replace(/^@/, "") || undefined,
     myDraft: body.myDraft?.trim() || "",
     createdAt: new Date().toISOString(),
   };

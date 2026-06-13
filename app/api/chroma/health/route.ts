@@ -47,7 +47,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Chroma is not running or is not reachable.",
+        error: "Vector database is not reachable.",
         details: error instanceof Error ? error.message : String(error),
         startCommand: getChromaStartCommand(),
         settings,

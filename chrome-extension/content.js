@@ -191,6 +191,17 @@ function getTweetStatusUrl(article) {
   return href.startsWith("http") ? href : `https://x.com${href}`;
 }
 
+function getStatusIdFromUrl(url) {
+  return String(url || "").match(/\/status(?:es)?\/(\d+)/)?.[1] ?? "";
+}
+
+function isCurrentDetailTweet(article) {
+  const pageStatusId = getStatusIdFromUrl(window.location.href);
+  if (!pageStatusId) return false;
+
+  return getStatusIdFromUrl(getTweetStatusUrl(article)) === pageStatusId;
+}
+
 function extractFromTweetArticle(article) {
   const tweetTextElement = article.querySelector(TWEET_TEXT_SELECTOR);
   const text = tweetTextElement ? cleanText(tweetTextElement.innerText) : "";
@@ -660,7 +671,60 @@ async function openGlobalCompose(text) {
   return replaceComposeText(editor, text);
 }
 
+function findInlineReplyEditorForArticle(article) {
+  if (!(article instanceof HTMLElement) || !isCurrentDetailTweet(article)) {
+    return null;
+  }
+
+  const articleRect = article.getBoundingClientRect();
+  const editors = getVisibleComposeEditors()
+    .filter((editor) => !editor.closest('[role="dialog"]'))
+    .map((editor, index) => {
+      const rect = editor.getBoundingClientRect();
+      const horizontalOverlap =
+        Math.min(articleRect.right, rect.right) - Math.max(articleRect.left, rect.left);
+      const belowArticle = rect.top >= articleRect.bottom - 24;
+
+      return {
+        editor,
+        index,
+        score:
+          (belowArticle ? 120 : 0) +
+          Math.max(0, Math.min(80, horizontalOverlap / 4)) -
+          Math.max(0, rect.top - articleRect.bottom) / 12,
+      };
+    })
+    .filter((candidate) => candidate.score > 40);
+
+  return editors
+    .sort((left, right) => left.score - right.score || right.index - left.index)
+    .at(-1)?.editor ?? null;
+}
+
+async function insertIntoInlineReplyEditor(article, text) {
+  const editor = findInlineReplyEditorForArticle(article);
+  if (!(editor instanceof HTMLElement)) return null;
+
+  editor.scrollIntoView({ block: "center", inline: "nearest" });
+  await sleep(120);
+
+  const inserted = await replaceComposeText(editor, text);
+  if (!inserted.ok) return inserted;
+
+  if (!getEditorPlainText(editor)) {
+    return {
+      ok: false,
+      error: "Reply editor was found, but X did not accept the generated text.",
+    };
+  }
+
+  return { ok: true, mode: "inline" };
+}
+
 async function insertReplyIntoTweet(article, text) {
+  const inlineResult = await insertIntoInlineReplyEditor(article, text);
+  if (inlineResult) return inlineResult;
+
   const replyButton =
     article.querySelector('[data-testid="reply"]') ||
     article.querySelector('button[aria-label^="Reply"]');
@@ -773,45 +837,65 @@ function findReplyButtonPlacement(article) {
 
   if (!menuButton) return null;
 
-  const anchor =
+  const menuControl =
     menuButton.closest("button, a, div[role='button']") || menuButton;
-  const host = anchor.parentElement;
+  const host = menuControl.parentElement;
   if (!host) return null;
 
-  return { host, anchor };
+  const grokControl = findGrokControl(host, menuControl);
+  return { host, before: grokControl || menuControl };
 }
 
-function positionReplyButton(button, article, anchor) {
-  if (
-    !(button instanceof HTMLElement) ||
-    !(article instanceof HTMLElement) ||
-    !(anchor instanceof HTMLElement)
-  ) {
-    return;
+function directChildOf(parent, element) {
+  let current = element;
+  while (current?.parentElement && current.parentElement !== parent) {
+    current = current.parentElement;
   }
 
-  if (window.getComputedStyle(article).position === "static") {
-    article.style.position = "relative";
+  return current instanceof HTMLElement && current.parentElement === parent
+    ? current
+    : null;
+}
+
+function findGrokControl(host, menuControl) {
+  const grokSelector = [
+    '[aria-label*="Grok" i]',
+    '[data-testid*="grok" i]',
+    '[href*="/i/grok"]',
+  ].join(",");
+
+  const explicitMatch = Array.from(host.querySelectorAll(grokSelector))
+    .map((element) => directChildOf(host, element))
+    .find((element) => element && element !== menuControl && isVisibleElement(element));
+
+  if (explicitMatch) return explicitMatch;
+
+  let sibling = menuControl.previousElementSibling;
+  while (sibling) {
+    if (
+      sibling instanceof HTMLElement &&
+      !sibling.hasAttribute(REPLY_BUTTON_ATTR) &&
+      isVisibleElement(sibling)
+    ) {
+      return sibling;
+    }
+    sibling = sibling.previousElementSibling;
   }
 
-  const articleRect = article.getBoundingClientRect();
-  const anchorRect = anchor.getBoundingClientRect();
-  const buttonSize = 32;
-  const gap = 8;
+  return null;
+}
 
-  const top = Math.max(
-    8,
-    anchorRect.top - articleRect.top + (anchorRect.height - buttonSize) / 2,
-  );
-  const left = Math.max(
-    8,
-    anchorRect.left - articleRect.left - buttonSize - gap,
-  );
+function placeReplyButton(button, placement) {
+  if (!(button instanceof HTMLElement) || !placement?.host) return;
 
-  button.style.position = "absolute";
-  button.style.top = `${Math.round(top)}px`;
-  button.style.left = `${Math.round(left)}px`;
-  button.style.zIndex = "2147483645";
+  if (button.parentElement !== placement.host || button.nextElementSibling !== placement.before) {
+    placement.host.insertBefore(button, placement.before);
+  }
+
+  button.style.position = "relative";
+  button.style.top = "";
+  button.style.left = "";
+  button.style.zIndex = "1";
 }
 
 function installReplyButton(article) {
@@ -830,25 +914,24 @@ function installReplyButton(article) {
       display: "inline-flex",
       alignItems: "center",
       justifyContent: "center",
-      width: "32px",
-      height: "32px",
+      flex: "0 0 auto",
+      width: "34px",
+      height: "34px",
       padding: "0",
-      border: "1px solid rgba(255,255,255,0.08)",
+      border: "0",
       borderRadius: "999px",
-      background: "rgba(255,255,255,0.05)",
+      background: "transparent",
       cursor: "pointer",
       color: "#71767b",
-      transition: "background 120ms ease, border-color 120ms ease",
+      transition: "background 120ms ease",
     });
 
     button.addEventListener("mouseenter", () => {
       button.style.background = "rgba(29,155,240,0.12)";
-      button.style.borderColor = "rgba(29,155,240,0.3)";
     });
 
     button.addEventListener("mouseleave", () => {
-      button.style.background = "rgba(255,255,255,0.05)";
-      button.style.borderColor = "rgba(255,255,255,0.08)";
+      button.style.background = "transparent";
     });
 
     const icon = document.createElement("img");
@@ -860,6 +943,12 @@ function installReplyButton(article) {
       display: "block",
       borderRadius: "4px",
     });
+    icon.addEventListener("error", () => {
+      icon.remove();
+      button.textContent = "X";
+      button.style.fontSize = "13px";
+      button.style.fontWeight = "800";
+    });
 
     button.appendChild(icon);
     button.addEventListener("click", (event) => {
@@ -867,11 +956,9 @@ function installReplyButton(article) {
       event.stopPropagation();
       void openReplyPanel(article, button);
     });
-
-    article.appendChild(button);
   }
 
-  positionReplyButton(button, article, placement.anchor);
+  placeReplyButton(button, placement);
 }
 
 function refreshButtons(root) {
@@ -1130,7 +1217,9 @@ async function openReplyPanel(article, button) {
       });
 
       const reply = await requestGeneratedReply(payload);
-      status.textContent = "Opening the reply box...";
+      status.textContent = isCurrentDetailTweet(article)
+        ? "Inserting into the reply box..."
+        : "Opening the reply box...";
 
       const insertResult = await insertReplyIntoTweet(article, reply.content);
       if (!insertResult?.ok) {

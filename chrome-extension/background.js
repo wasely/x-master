@@ -67,9 +67,9 @@ async function probeAppUrl(url, token) {
 async function findConnection() {
   const settings = await getConnectionSettings();
   const candidates = [
+    ...PORTS.map((port) => `http://localhost:${port}`),
     settings.appUrl,
     DEFAULT_APP_URL,
-    ...PORTS.map((port) => `http://localhost:${port}`),
   ];
   const seen = new Set();
 

@@ -5,6 +5,7 @@ export type TweetMetadata = {
   sourceUrl?: string;
   tweetId?: string;
   authorName?: string;
+  authorHandle?: string;
   notes?: string;
   tags?: string[] | string;
   tagCsv?: string;
@@ -21,6 +22,7 @@ export type TweetRecord = {
   sourceUrl?: string;
   tweetId?: string;
   authorName?: string;
+  authorHandle?: string;
   notes?: string;
   tags: string[];
   tone?: string;
@@ -73,6 +75,7 @@ export function toTweetRecord(
     sourceUrl: metadata?.sourceUrl,
     tweetId: metadata?.tweetId,
     authorName: metadata?.authorName,
+    authorHandle: metadata?.authorHandle,
     notes: metadata?.notes,
     tags: normalizeTags(metadata),
     tone: metadata?.tone ? getToneOption(metadata.tone).id : undefined,
@@ -101,6 +104,7 @@ export function buildTweetMetadata(input: {
   sourceUrl?: string;
   tweetId?: string;
   authorName?: string;
+  authorHandle?: string;
   notes?: string;
   tags?: string[];
   tone?: string;
@@ -115,6 +119,7 @@ export function buildTweetMetadata(input: {
   if (input.sourceUrl) metadata.sourceUrl = input.sourceUrl;
   if (input.tweetId) metadata.tweetId = input.tweetId;
   if (input.authorName) metadata.authorName = input.authorName;
+  if (input.authorHandle) metadata.authorHandle = input.authorHandle;
   if (input.notes) metadata.notes = input.notes;
   if (input.tags?.length) metadata.tagCsv = input.tags.join(", ");
   if (input.tone) metadata.tone = getToneOption(input.tone).id;

@@ -9,6 +9,7 @@ type Draft = {
   text: string;
   sourceUrl?: string;
   authorName?: string;
+  authorHandle?: string;
   myDraft: string;
   createdAt: string;
 };
@@ -17,6 +18,15 @@ function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
   return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(date);
+}
+
+function extractUsername(sourceUrl?: string) {
+  if (!sourceUrl) return "";
+  return sourceUrl.match(/(?:twitter|x)\.com\/([^/]+)\/status/i)?.[1] ?? "";
+}
+
+function cleanHandle(value?: string) {
+  return value?.replace(/^@/, "").trim() ?? "";
 }
 
 function DraftCard({
@@ -34,6 +44,9 @@ function DraftCard({
   const [copied, setCopied] = useState(false);
   const dirty = myDraft !== draft.myDraft;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const authorHandle = cleanHandle(draft.authorHandle) || extractUsername(draft.sourceUrl);
+  const displayName =
+    draft.authorName && cleanHandle(draft.authorName) !== authorHandle ? draft.authorName : "";
 
   function autoResize() {
     const el = textareaRef.current;
@@ -68,9 +81,12 @@ function DraftCard({
     <div className="surface-card space-y-3 p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          {draft.authorName && (
-            <span className="text-xs font-medium text-zinc-400">@{draft.authorName}</span>
-          )}
+          {displayName ? (
+            <span className="text-xs font-medium text-zinc-300">{displayName}</span>
+          ) : null}
+          {authorHandle ? (
+            <span className="text-xs font-medium text-zinc-500">@{authorHandle}</span>
+          ) : null}
           <span className="text-[10px] text-zinc-600">{formatDate(draft.createdAt)}</span>
         </div>
         <div className="flex items-center gap-2">
@@ -94,7 +110,7 @@ function DraftCard({
         </div>
       </div>
 
-      <p className="rounded-xl bg-white/[0.03] px-3 py-2.5 text-xs leading-relaxed text-zinc-500">
+      <p className="rounded-lg bg-white/[0.03] px-3 py-2.5 text-xs leading-relaxed text-zinc-500">
         {draft.text}
       </p>
 
@@ -110,7 +126,7 @@ function DraftCard({
             setMyDraft(e.target.value);
           }}
           placeholder="Write your version here…"
-          className="w-full resize-none rounded-xl bg-white/[0.05] px-3 py-2.5 text-sm leading-relaxed text-white placeholder-zinc-700 outline-none focus:ring-1 focus:ring-white/10"
+          className="w-full resize-none rounded-lg bg-white/[0.05] px-3 py-2.5 text-sm leading-relaxed text-white placeholder-zinc-700 outline-none focus:ring-1 focus:ring-white/10"
           rows={3}
           style={{ minHeight: "4.5rem" }}
         />
@@ -123,7 +139,7 @@ function DraftCard({
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-1.5 rounded-xl bg-white/[0.07] px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/[0.1] disabled:opacity-40"
+              className="flex items-center gap-1.5 rounded-lg bg-white/[0.07] px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/[0.1] disabled:opacity-40"
             >
               {saving ? <Loader2 size={12} className="animate-spin" /> : null}
               Save
@@ -131,7 +147,7 @@ function DraftCard({
           )}
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-xs font-medium text-black hover:bg-zinc-200"
+            className="flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-black hover:bg-zinc-200"
           >
             {copied ? <Check size={12} /> : <Clipboard size={12} />}
             {copied ? "Copied!" : "Copy"}
@@ -202,7 +218,7 @@ export default function DraftsPage() {
           <p className="text-xs text-zinc-700">
             Save generated posts from the TikTok or Generate tabs,
             or right-click any tweet on X and choose{" "}
-            <span className="text-zinc-500">Save as my draft</span>.
+            <span className="text-zinc-500">Save tweet as draft</span>.
           </p>
         </div>
       ) : (

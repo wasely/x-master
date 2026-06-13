@@ -118,14 +118,14 @@ export default function SystemStatus({
 
       {showCounts ? (
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3">
+          <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
             <div className="flex items-center gap-2 text-zinc-500">
               <Database size={14} />
               <span className="text-[11px] uppercase tracking-[0.18em]">Saved</span>
             </div>
             <p className="mt-3 text-[22px] font-semibold text-white">{formatCount(status?.count)}</p>
           </div>
-          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3">
+          <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
             <div className="flex items-center gap-2 text-zinc-500">
               <AlertCircle size={14} />
               <span className="text-[11px] uppercase tracking-[0.18em]">Rejected</span>

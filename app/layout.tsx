@@ -27,22 +27,22 @@ const ibmMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "X Master",
-  description: "Generate writing from TikTok ideas and saved X examples",
+  description: "Database-backed writing workspace for X: save examples, generate posts and replies, and manage drafts.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
   manifest: "/manifest.json",
   icons: {
-    icon: "/icons/icon-192.svg",
-    apple: "/icons/apple-touch-icon.svg",
+    icon: "/icons/icon.png",
+    apple: "/icons/apple-touch-icon.png",
   },
   openGraph: {
     title: "X Master",
-    description: "Generate writing from TikTok ideas and saved X examples",
+    description: "Database-backed writing workspace for X: save examples, generate posts and replies, and manage drafts.",
     type: "website",
   },
   twitter: {
     card: "summary",
     title: "X Master",
-    description: "Generate writing from TikTok ideas and saved X examples",
+    description: "Database-backed writing workspace for X: save examples, generate posts and replies, and manage drafts.",
   },
   appleWebApp: {
     capable: true,

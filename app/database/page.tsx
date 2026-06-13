@@ -28,6 +28,7 @@ type TweetExample = {
   sourceType: "tweet_url" | "manual";
   sourceUrl?: string;
   authorName?: string;
+  authorHandle?: string;
   notes?: string;
   tags: string[];
   tone?: string;
@@ -62,6 +63,12 @@ function formatDate(value?: string) {
 function extractUsername(sourceUrl?: string) {
   if (!sourceUrl) return null;
   return sourceUrl.match(/(?:twitter|x)\.com\/([^/]+)\/status/i)?.[1] ?? null;
+}
+
+function cleanHandle(value?: string | null) {
+  if (!value) return null;
+  const handle = value.replace(/^@/, "").trim();
+  return handle || null;
 }
 
 function avatarColor(name: string) {
@@ -139,8 +146,10 @@ function TweetCard({
   copied: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const username = extractUsername(example.sourceUrl);
-  const name = example.authorName ?? username ?? "?";
+  const username = cleanHandle(example.authorHandle) ?? extractUsername(example.sourceUrl);
+  const displayName =
+    example.authorName && cleanHandle(example.authorName) !== username ? example.authorName : "";
+  const name = displayName || username || "?";
   const color = avatarColor(name);
   const isLong = example.text.length > 220;
   const metaTags = [...new Set(
@@ -155,10 +164,8 @@ function TweetCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              {example.authorName ? (
-                <span className="text-[14px] font-semibold text-white">{example.authorName}</span>
-              ) : null}
-              {username ? (
+              <span className="text-[14px] font-semibold text-white">{displayName || (username ? `@${username}` : "Unknown")}</span>
+              {username && displayName ? (
                 <span className="ml-1.5 text-[13px] text-zinc-500">@{username}</span>
               ) : null}
               {example.createdAt ? (
@@ -537,7 +544,7 @@ export default function DatabasePage() {
         <button
           type="button"
           onClick={() => setActiveTab("saved")}
-          className={`rounded-2xl border p-3 text-left transition-colors ${
+          className={`rounded-lg border p-3 text-left transition-colors ${
             activeTab === "saved"
               ? "border-emerald-500/30 bg-emerald-500/[0.06]"
               : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.10]"
@@ -554,7 +561,7 @@ export default function DatabasePage() {
         <button
           type="button"
           onClick={() => setActiveTab("rejected")}
-          className={`rounded-2xl border p-3 text-left transition-colors ${
+          className={`rounded-lg border p-3 text-left transition-colors ${
             activeTab === "rejected"
               ? "border-red-500/30 bg-red-500/[0.05]"
               : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.10]"

@@ -447,7 +447,7 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
       {activeVariant ? (
         <section className="surface-card p-4">
           {feedbackByVariantId[activeVariant.id] ? (
-            <div className="mb-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 text-[12px] text-zinc-400">
+            <div className="mb-4 rounded-lg border border-white/[0.06] bg-white/[0.03] px-4 py-3 text-[12px] text-zinc-400">
               {feedbackByVariantId[activeVariant.id] === "like"
                 ? "Saved as a positive style reference."
                 : "Saved as a rejected style pattern."}
@@ -479,8 +479,8 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
                     onClick={() => setActiveVariantId(variant.id)}
                     className={
                       active
-                        ? "rounded-full border border-white/[0.16] bg-white/[0.08] px-3 py-2 text-[12px] font-medium text-white"
-                        : "rounded-full border border-white/[0.06] bg-transparent px-3 py-2 text-[12px] text-zinc-500"
+                        ? "rounded-lg border border-white/[0.16] bg-white/[0.08] px-3 py-2 text-[12px] font-medium text-white"
+                        : "rounded-lg border border-white/[0.06] bg-transparent px-3 py-2 text-[12px] text-zinc-500"
                     }
                   >
                     Post {index + 1}
@@ -490,7 +490,7 @@ export default function GenerationComposer({ mode }: { mode: ContentMode }) {
             </div>
           ) : null}
 
-          <div className="mt-4 rounded-[1.35rem] border border-white/[0.06] bg-black/20 p-4">
+          <div className="mt-4 rounded-lg border border-white/[0.06] bg-black/20 p-4">
             <p className="whitespace-pre-wrap text-[15px] leading-7 text-zinc-100">
               {activeVariant.content}
             </p>

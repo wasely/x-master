@@ -63,9 +63,9 @@ async function probeAppUrl(url, token) {
 async function findAppUrl() {
   const { appUrl, vercelBypassToken } = await getConnectionSettings();
   const candidates = [
+    ...PORTS.map((port) => `http://localhost:${port}`),
     appUrl,
     DEFAULT_APP_URL,
-    ...PORTS.map((port) => `http://localhost:${port}`),
   ];
   const seen = new Set();
 
@@ -171,7 +171,7 @@ saveBtn.addEventListener("click", () => {
 });
 
 detectBtn.addEventListener("click", async () => {
-  setStatus("Checking hosted app and localhost ports...");
+  setStatus("Checking localhost and hosted app...");
   detectBtn.disabled = true;
 
   const found = await findAppUrl();

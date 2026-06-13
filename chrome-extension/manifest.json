@@ -29,6 +29,12 @@
       "run_at": "document_idle"
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*.png", "icon.svg"],
+      "matches": ["https://twitter.com/*", "https://x.com/*"]
+    }
+  ],
   "action": {
     "default_icon": {
       "16": "icons/icon16.png",

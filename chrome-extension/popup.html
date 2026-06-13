@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>X Master App</title>
+  <title>X Master</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      width: 280px;
+      width: 380px;
       padding: 16px;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       font-size: 13px;
-      background: #0a0a0a;
+      background: #070708;
       color: #e4e4e7;
     }
 
@@ -19,8 +19,27 @@
       font-size: 14px;
       font-weight: 600;
       letter-spacing: 0.02em;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
       color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 img {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    p {
+      line-height: 1.45;
+    }
+
+    .intro {
+      margin-bottom: 16px;
+      color: #a1a1aa;
     }
 
     label {
@@ -32,19 +51,29 @@
       margin-bottom: 6px;
     }
 
-    input {
+    input,
+    textarea {
       display: block;
       width: 100%;
       padding: 8px 12px;
-      background: #18181b;
-      border: 1px solid rgba(255,255,255,0.08);
+      background: #101113;
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 8px;
       color: #e4e4e7;
       font-size: 13px;
       outline: none;
+      resize: vertical;
     }
 
-    input:focus { border-color: rgba(255,255,255,0.2); }
+    input:focus,
+    textarea:focus {
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    textarea {
+      min-height: 104px;
+      line-height: 1.45;
+    }
 
     button {
       display: block;
@@ -62,19 +91,94 @@
     }
 
     button:hover { background: #e4e4e7; }
+    button:disabled { opacity: 0.55; cursor: default; }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .row button {
+      flex: 1;
+      margin-top: 0;
+    }
+
+    .ghost {
+      background: #121316;
+      color: #e4e4e7;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .section {
+      margin-top: 14px;
+    }
 
     #status {
       margin-top: 10px;
       font-size: 12px;
-      color: #71717a;
+      color: #a1a1aa;
       min-height: 16px;
-      text-align: center;
     }
 
-    .hint {
+    #status[data-state="error"] {
+      color: #fda4af;
+    }
+
+    #status[data-state="success"] {
+      color: #86efac;
+    }
+
+    .microcopy {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #71717a;
+    }
+
+    .target-tab {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      background: #101113;
+      color: #a1a1aa;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .target-tab[data-state="warn"] {
+      border-color: rgba(251,191,36,0.2);
+      color: #facc15;
+    }
+
+    details {
       margin-top: 16px;
       padding-top: 14px;
       border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    summary {
+      cursor: pointer;
+      color: #d4d4d8;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .settings {
+      margin-top: 12px;
+    }
+
+    .hint {
+      margin-top: 12px;
       font-size: 12px;
       line-height: 1.6;
       color: #52525b;
@@ -82,20 +186,50 @@
   </style>
 </head>
 <body>
-  <h1>X Master App</h1>
+  <h1><img src="icons/icon128.png" alt="" />X Master</h1>
+  <p class="intro">Polish a reply without changing your voice.</p>
 
-  <label for="appUrl">App URL</label>
-  <input id="appUrl" type="url" placeholder="http://localhost:3000" spellcheck="false" />
+  <label for="draftInput">Reply draft</label>
+  <textarea id="draftInput" placeholder="Paste your reply here..." spellcheck="true"></textarea>
 
-  <div style="display:flex;gap:8px;margin-top:12px">
-    <button id="save" style="flex:1;margin-top:0">Save</button>
-    <button id="detect" style="flex:1;margin-top:0;background:#18181b;color:#e4e4e7;border:1px solid rgba(255,255,255,0.1)">Auto-detect</button>
+  <div class="row">
+    <button id="enhance">Enhance</button>
+    <button id="copy" class="ghost">Copy</button>
   </div>
+
+  <div class="section">
+    <label for="enhancedOutput">Enhanced reply</label>
+    <textarea id="enhancedOutput" placeholder="Your cleaned-up reply will show here..." spellcheck="true"></textarea>
+    <p id="targetTab" class="target-tab"></p>
+    <div class="row">
+      <button id="useOnX">Use on X</button>
+      <button id="clear" class="ghost">Clear</button>
+    </div>
+  </div>
+
   <p id="status"></p>
+  <p class="microcopy">This keeps your wording close and only fixes grammar, flow, and clarity.</p>
+
+  <details>
+    <summary>Connection settings</summary>
+    <div class="settings">
+      <label for="appUrl">App URL</label>
+      <input id="appUrl" type="url" placeholder="https://x-master-iy458bg51-wasely-3997s-projects.vercel.app" spellcheck="false" />
+
+      <label for="vercelBypassToken" style="margin-top:12px">Vercel bypass token</label>
+      <input id="vercelBypassToken" type="password" placeholder="Optional for protected deployments" spellcheck="false" autocomplete="off" />
+      <p class="microcopy">Only needed when Vercel Deployment Protection is enabled.</p>
+
+      <div class="row">
+        <button id="save">Save</button>
+        <button id="detect" class="ghost">Auto-detect</button>
+      </div>
+    </div>
+  </details>
 
   <p class="hint">Right-click any tweet on X and choose<br>
-    <strong style="color:#a1a1aa">"Add tweet to style library"</strong> or<br>
-    <strong style="color:#a1a1aa">"Save as my draft"</strong>.
+    <strong style="color:#a1a1aa">"Add tweet to style library"</strong>,<br>
+    <strong style="color:#a1a1aa">"Save tweet as draft"</strong>, or use the Drive button on videos.
   </p>
 
   <script src="popup.js"></script>

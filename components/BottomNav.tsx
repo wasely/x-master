@@ -26,8 +26,8 @@ export default function BottomNav() {
               href={href}
               className={
                 active
-                  ? "flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl bg-white/[0.06]"
-                  : "flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl"
+                  ? "flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg bg-white/[0.08]"
+                  : "flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg hover:bg-white/[0.035]"
               }
             >
               <Icon

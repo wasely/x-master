@@ -42,6 +42,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ examples });
   } catch (error) {
-    return jsonError("Could not read tweet examples from Chroma.", 503, error);
+    return jsonError("Could not read tweet examples from the vector database.", 503, error);
   }
 }

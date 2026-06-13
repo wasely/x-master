@@ -5,11 +5,12 @@
 :root {
   --font-jakarta: var(--font-space), system-ui, sans-serif;
   --font-playfair: "Playfair Display", Georgia, serif;
-  --app-bg: #080808;
-  --app-panel: rgba(255, 255, 255, 0.035);
-  --app-panel-strong: rgba(255, 255, 255, 0.06);
-  --app-border: rgba(255, 255, 255, 0.08);
-  --app-muted: #71717a;
+  --app-bg: #070708;
+  --app-panel: #111114;
+  --app-panel-strong: #17171b;
+  --app-border: rgba(255, 255, 255, 0.09);
+  --app-border-strong: rgba(255, 255, 255, 0.16);
+  --app-muted: #8b8b93;
   --app-text: #f4f4f5;
 }
 
@@ -19,9 +20,7 @@
 }
 
 html, body {
-  background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.1), transparent 32%),
-    linear-gradient(180deg, #0d0d0d 0%, #080808 30%, #050505 100%);
+  background: linear-gradient(180deg, #101113 0%, #080809 42%, #050506 100%);
   color: var(--app-text);
   font-family: var(--font-space), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -43,18 +42,20 @@ body::after {
 }
 
 body::before {
-  background:
-    radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.08), transparent 30%),
-    radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.04), transparent 26%);
+  opacity: 0.18;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(180deg, black 0%, transparent 70%);
 }
 
 body::after {
-  opacity: 0.16;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 22px 22px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.4), black 22%, black 75%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+  opacity: 0.45;
+  width: 1px;
+  left: 50%;
+  right: auto;
 }
 
 button,
@@ -100,12 +101,10 @@ select {
 }
 
 .app-frame {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 12%),
-    var(--app-bg);
+  background: var(--app-bg);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.04),
-    0 30px 100px rgba(0, 0, 0, 0.55);
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 34px 90px rgba(0, 0, 0, 0.58);
 }
 
 .page-header {
@@ -114,19 +113,17 @@ select {
 
 .surface-card {
   border: 1px solid var(--app-border);
-  border-radius: 1.5rem;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.02)),
-    rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  background: var(--app-panel);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(10px);
 }
 
 .field-shell {
   border: 1px solid var(--app-border);
-  border-radius: 1.25rem;
-  background: rgba(255, 255, 255, 0.015);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  background: #0b0b0d;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
 }
 
 .status-pill {
@@ -135,10 +132,10 @@ select {
   gap: 0.45rem;
   min-height: 2.125rem;
   padding: 0.45rem 0.75rem;
-  border-radius: 999px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(12px);
+  background: var(--app-panel-strong);
+  backdrop-filter: blur(8px);
 }
 
 .status-pill-online {
@@ -166,7 +163,7 @@ select {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 1rem;
+  border-radius: 8px;
   background: white;
   color: black;
   font-size: 14px;
@@ -186,9 +183,9 @@ select {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 1rem;
+  border-radius: 8px;
   border: 1px solid var(--app-border);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--app-panel-strong);
   color: #e4e4e7;
   font-size: 13px;
   font-weight: 600;
@@ -200,9 +197,9 @@ select {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 999px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.025);
   color: #d4d4d8;
   font-size: 12px;
   font-weight: 500;
@@ -212,7 +209,7 @@ select {
 .ghost-button:hover,
 .secondary-button:hover,
 .field-shell:focus-within {
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: var(--app-border-strong);
 }
 
 .primary-button:hover {
